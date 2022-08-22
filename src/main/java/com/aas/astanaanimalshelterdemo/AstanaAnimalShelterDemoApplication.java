@@ -9,4 +9,5 @@ public class AstanaAnimalShelterDemoApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AstanaAnimalShelterDemoApplication.class, args);
 	}
+
 }
