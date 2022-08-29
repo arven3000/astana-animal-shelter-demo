@@ -1,4 +1,4 @@
-package com.aas.astanaanimalshelterdemo.model;
+package com.aas.astanaanimalshelterdemo.botModel;
 
 import javax.persistence.*;
 import java.util.Arrays;

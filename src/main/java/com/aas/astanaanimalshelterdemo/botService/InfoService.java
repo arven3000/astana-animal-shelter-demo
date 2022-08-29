@@ -1,7 +1,7 @@
-package com.aas.astanaanimalshelterdemo.service;
+package com.aas.astanaanimalshelterdemo.botService;
 
-import com.aas.astanaanimalshelterdemo.model.Info;
-import com.aas.astanaanimalshelterdemo.repository.InfoRepository;
+import com.aas.astanaanimalshelterdemo.botModel.Info;
+import com.aas.astanaanimalshelterdemo.botRepositories.InfoRepository;
 import org.springframework.stereotype.Service;
 
 @Service
