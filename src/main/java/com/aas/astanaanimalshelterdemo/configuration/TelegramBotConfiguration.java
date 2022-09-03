@@ -1,19 +1,19 @@
 package com.aas.astanaanimalshelterdemo.configuration;
 
-import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.model.DeleteMyCommands;
-import org.springframework.beans.factory.annotation.Value;
+import com.aas.astanaanimalshelterdemo.listener.TelegramBotUpdatesListener;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+@Configuration
 public class TelegramBotConfiguration {
-
-    @Value("5581462800:AAEtjTsp8-A8Vux-yB1utyhLQyW8WbOTfsg")
-    private String token;
-
     @Bean
-    public TelegramBot telegramBot() {
-        TelegramBot bot = new TelegramBot(token);
-        bot.execute(new DeleteMyCommands());
-        return bot;
+    public TelegramBotsApi telegramBotsApi(TelegramBotUpdatesListener bot) throws TelegramApiException {
+        TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+        telegramBotsApi.registerBot(bot);
+        return telegramBotsApi;
     }
 }
+
