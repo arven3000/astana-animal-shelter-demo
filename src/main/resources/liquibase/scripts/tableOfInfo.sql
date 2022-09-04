@@ -18,5 +18,6 @@ CREATE TABLE info
     advice_For_Home_For_Puppy               TEXT,
     advice_For_Home_For_Adult_Dog           TEXT,
     advice_For_Home_For_Dog_With_Disability TEXT,
-    location                                BYTEA
+    media_Type                              TEXT,
+    location                                OID
 )
