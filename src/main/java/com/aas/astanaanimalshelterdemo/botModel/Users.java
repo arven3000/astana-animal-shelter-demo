@@ -2,10 +2,10 @@ package com.aas.astanaanimalshelterdemo.botModel;
 
 
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
+import java.util.Collection;
 import java.util.Objects;
 
 @Entity
@@ -19,12 +19,18 @@ public class Users {
     private String phoneNumber;
     private String emailAddress;
 
-    public Users(Long id, Long chatId, String userName, String phoneNumber, String emailAddress) {
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private Collection<Report> reports;
+
+
+    public Users(Long id, Long chatId, String userName, String phoneNumber, String emailAddress, Report reports) {
         this.id = id;
         this.chatId = chatId;
         this.userName = userName;
         this.phoneNumber = phoneNumber;
         this.emailAddress = emailAddress;
+        this.reports = (Collection<Report>) reports;
     }
 
     public Users() {
@@ -69,6 +75,14 @@ public class Users {
 
     public void setEmailAddress(String emailAddress) {
         this.emailAddress = emailAddress;
+    }
+
+    public Collection<Report> getReports() {
+        return reports;
+    }
+
+    public void setReports(Collection<Report> reports) {
+        this.reports = reports;
     }
 
     @Override

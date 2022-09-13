@@ -1,13 +1,10 @@
 package com.aas.astanaanimalshelterdemo.botModel;
 
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
+import java.util.Collection;
 import java.util.Objects;
 
 @Entity
@@ -24,6 +21,10 @@ public class Pet {
     private AnimalType typeOfAnimal;
 
     private int age;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "pet")
+    private Collection<Report> reports;
 
     public Pet() {
     }
@@ -65,6 +66,14 @@ public class Pet {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    public Collection<Report> getReports() {
+        return reports;
+    }
+
+    public void setReports(Collection<Report> reports) {
+        this.reports = reports;
     }
 
     @Override
