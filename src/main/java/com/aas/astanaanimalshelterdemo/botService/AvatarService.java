@@ -26,6 +26,9 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Transactional
 public class AvatarService {
 
+    /**
+     * Директорий, где будут хранится файлы с фотографиями.
+     */
     @Value("${path.to.avatars.folder}")
     private String avatarDir;
 
@@ -44,9 +47,10 @@ public class AvatarService {
         Pet pet = petRepository.findById(petId).orElseThrow();
         Avatar avatar = avatarRepository.findAvatarByPet(pet).orElse(new Avatar());
         avatar.setPet(pet);
+        String pathOfPet = avatarDir + "/" + petId;
 
         if (avatarFile1 != null) {
-            Path filePath1 = Path.of(avatarDir, pet + "1." +
+            Path filePath1 = Path.of(pathOfPet, pet + "1." +
                     getExtension(Objects.requireNonNull(avatarFile1.getOriginalFilename())));
             uploadingPhoto(avatarFile1, filePath1);
             avatar.setFilePath1(filePath1.toString());

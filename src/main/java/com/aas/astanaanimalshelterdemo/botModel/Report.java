@@ -19,7 +19,9 @@ public class Report {
     @JoinColumn(name = "pet_id")
     private Pet pet;
 
+    @Lob
     private byte[] photo;
+
     private String diet;
     private String stateOfHealth;
     private String habits;
