@@ -24,6 +24,10 @@ public class Pet {
 
     @JsonIgnore
     @OneToMany(mappedBy = "pet")
+    private Collection<Avatar> avatars;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "pet")
     private Collection<Report> reports;
 
     public Pet() {
@@ -66,6 +70,14 @@ public class Pet {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    public Collection<Avatar> getAvatars() {
+        return avatars;
+    }
+
+    public void setAvatars(Collection<Avatar> avatars) {
+        this.avatars = avatars;
     }
 
     public Collection<Report> getReports() {

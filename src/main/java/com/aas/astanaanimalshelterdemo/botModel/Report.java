@@ -1,9 +1,11 @@
 package com.aas.astanaanimalshelterdemo.botModel;
 
 import javax.persistence.*;
-import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * Сущность для хранения отчетов опекунов.
+ */
 @Entity
 public class Report {
 
@@ -11,16 +13,25 @@ public class Report {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Идентификатор опекуна.
+     */
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "users_id")
     private Users user;
 
+    /**
+     * Идентификатор соответствующего питомца.
+     */
     @ManyToOne
     @JoinColumn(name = "pet_id")
     private Pet pet;
 
-    @Lob
-    private byte[] photo;
+    /**
+     * Идентификатор фоторафии, направленной опекуном.
+     */
+    @OneToOne
+    private Avatar avatar;
 
     private String diet;
     private String stateOfHealth;
@@ -54,12 +65,12 @@ public class Report {
         this.pet = pet;
     }
 
-    public byte[] getPhoto() {
-        return photo;
+    public Avatar getAvatar() {
+        return avatar;
     }
 
-    public void setPhoto(byte[] photo) {
-        this.photo = photo;
+    public void setAvatar(Avatar avatar) {
+        this.avatar = avatar;
     }
 
     public String getDiet() {
@@ -91,17 +102,12 @@ public class Report {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Report report = (Report) o;
-        return Objects.equals(id, report.id) && Objects.equals(user, report.user)
-                && Objects.equals(pet, report.pet) && Arrays.equals(photo, report.photo)
-                && Objects.equals(diet, report.diet) && Objects.equals(stateOfHealth,
-                report.stateOfHealth) && Objects.equals(habits, report.habits);
+        return Objects.equals(id, report.id) && Objects.equals(user, report.user) && Objects.equals(pet, report.pet) && Objects.equals(avatar, report.avatar) && Objects.equals(diet, report.diet) && Objects.equals(stateOfHealth, report.stateOfHealth) && Objects.equals(habits, report.habits);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, user, pet, diet, stateOfHealth, habits);
-        result = 31 * result + Arrays.hashCode(photo);
-        return result;
+        return Objects.hash(id, user, pet, avatar, diet, stateOfHealth, habits);
     }
 
     @Override
@@ -110,7 +116,7 @@ public class Report {
                 "id=" + id +
                 ", user=" + user +
                 ", pet=" + pet +
-                ", photo=" + Arrays.toString(photo) +
+                ", avatar=" + avatar +
                 ", diet='" + diet + '\'' +
                 ", stateOfHealth='" + stateOfHealth + '\'' +
                 ", habits='" + habits + '\'' +

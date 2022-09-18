@@ -23,7 +23,6 @@ public class Users {
     @OneToMany(mappedBy = "user")
     private Collection<Report> reports;
 
-
     public Users(Long id, Long chatId, String userName, String phoneNumber, String emailAddress, Report reports) {
         this.id = id;
         this.chatId = chatId;

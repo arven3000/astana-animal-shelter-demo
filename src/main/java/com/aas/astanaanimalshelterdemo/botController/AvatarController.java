@@ -16,8 +16,11 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
-//Контроллер для работы с фотографиями.
+/**
+ * Контроллер для работы с фотографиями.
+ */
 @RestController
 @RequestMapping("/happyPet/avatar")
 public class AvatarController {
@@ -31,43 +34,37 @@ public class AvatarController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadAvatar (@PathVariable Long petId,
                                                 @RequestParam(required = false)
-                                                    MultipartFile file1,
-                                                @RequestParam(required = false)
-                                                    MultipartFile file2,
-                                                @RequestParam(required = false)
-                                                    MultipartFile file3) throws IOException {
-        avatarService.upLoadAvatar(petId, file1, file2, file3);
+                                                    MultipartFile file)
+                                                     throws IOException {
+        avatarService.upLoadAvatar(petId, file);
         return ResponseEntity.ok().body("Фотографии успешно загружены.");
     }
 
     @GetMapping(value = "/getAvatar/{petId}")
     public ResponseEntity<byte[]> getAvatarByPetId(@PathVariable Long petId,
-                                                   @RequestParam Integer numberOfPhoto)
-            throws ClassNotFoundException, InvocationTargetException,
-            NoSuchMethodException, IllegalAccessException {
-        Avatar avatar = avatarService.getAvatarByPetId(petId);
+                                                   @RequestParam Integer numberOfPhoto) {
+        List<Avatar> avatars = avatarService.getAvatarsByPetId(petId);
+        Avatar avatar = avatars.get(numberOfPhoto - 1);
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(avatarService.getMediaTypeByNumber(avatar, numberOfPhoto)));
-        headers.setContentLength(avatarService.getPhotoByNumber(avatar, numberOfPhoto).length);
+        headers.setContentType(MediaType.parseMediaType(avatar.getMediaType()));
+        headers.setContentLength(avatar.getPhoto().length);
         return ResponseEntity.status(HttpStatus.OK).headers(headers).
-                body(avatarService.getPhotoByNumber(avatar, numberOfPhoto));
+                body(avatar.getPhoto());
     }
 
     @GetMapping(value = "/getPhoto/{petId}")
     public void getPhotoByPetId(@PathVariable Long petId,
                                 @RequestParam Integer numberOfPhoto,
-                                HttpServletResponse response)
-            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-        Avatar avatar = avatarService.getAvatarByPetId(petId);
-        Path path = Path.of(avatarService.getFilePathByNumber(avatar, numberOfPhoto));
+                                HttpServletResponse response) {
+        List<Avatar> avatars = avatarService.getAvatarsByPetId(petId);
+        Avatar avatar = avatars.get(numberOfPhoto - 1);
+        Path path = Path.of(avatar.getFilePath());
         try (
                 InputStream is = Files.newInputStream(path);
                 OutputStream os = response.getOutputStream();){
             response.setStatus(200);
-            response.setContentType(avatarService.getMediaTypeByNumber(avatar,
-                    numberOfPhoto));
-            response.setContentLength(Math.toIntExact(avatarService.getFileSizeByNumber(avatar,
-                    numberOfPhoto)));
+            response.setContentType(avatar.getMediaType());
+            response.setContentLength(Math.toIntExact(avatar.getFileSize()));
             is.transferTo(os);
         } catch (IOException e) {
             throw new RuntimeException(e);
