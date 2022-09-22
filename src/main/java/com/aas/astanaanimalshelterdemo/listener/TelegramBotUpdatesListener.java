@@ -1,13 +1,11 @@
 package com.aas.astanaanimalshelterdemo.listener;
 
-import com.aas.astanaanimalshelterdemo.botModel.AnimalType;
-import com.aas.astanaanimalshelterdemo.botModel.Avatar;
-import com.aas.astanaanimalshelterdemo.botModel.Info;
-import com.aas.astanaanimalshelterdemo.botModel.Pet;
+import com.aas.astanaanimalshelterdemo.botModel.*;
 import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.AdoptiveParentsMenuEnum;
 import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.ArrangementMenuEnum;
 import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.InfoMenuEnum;
 import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.StartMenuEnum;
+import com.aas.astanaanimalshelterdemo.botRepositories.UsersRepository;
 import com.aas.astanaanimalshelterdemo.botService.AvatarService;
 import com.aas.astanaanimalshelterdemo.botService.InfoService;
 import com.aas.astanaanimalshelterdemo.botService.PetService;
@@ -25,6 +23,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 @Component
@@ -39,13 +39,16 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
     private final InfoService infoService;
     private final PetService petService;
     private final AvatarService avatarService;
+    private final UsersRepository usersRepository;
 
     public TelegramBotUpdatesListener(InfoService infoService,
                                       PetService petService,
-                                      AvatarService avatarService) {
+                                      AvatarService avatarService,
+                                      UsersRepository usersRepository) {
         this.infoService = infoService;
         this.petService = petService;
         this.avatarService = avatarService;
+        this.usersRepository = usersRepository;
     }
 
     @Override
@@ -63,7 +66,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
         if (update.hasCallbackQuery()) {
             try {
                 handleCallBack(update.getCallbackQuery());
-            } catch (TelegramApiException | FileNotFoundException e) {
+            } catch (TelegramApiException | IOException e) {
                 throw new RuntimeException(e);
             }
         } else if (update.hasMessage()) {
@@ -93,7 +96,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
     }
 
     private void handleCallBack(CallbackQuery callbackQuery) throws TelegramApiException,
-            FileNotFoundException {
+            IOException {
         Message message = callbackQuery.getMessage();
         String[] param = callbackQuery.getData().split(":");
         String action = param[0];
@@ -124,6 +127,16 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                         .chatId(message.getChatId().toString())
 //                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
                         .build());
+
+                File file = File.createTempFile("location", "jpg");
+                try (FileOutputStream fileOutputStream = new FileOutputStream(file)){
+                    fileOutputStream.write(info.getLocation());
+                }
+                InputFile inputFile = new InputFile(file);
+                execute(SendPhoto.builder()
+                        .photo(inputFile)
+                        .chatId(message.getChatId().toString())
+                        .build());
             }
 
             case "SAFETY" -> {
@@ -144,7 +157,37 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             case "ARRANGEMENT" -> processingArrangementMenu(message);
 
             case "CHOOSING" -> choosingOfPet(message);
+
+            case "TAKING" -> takingPet(message);
         }
+    }
+
+    private void takingPet(Message message) throws TelegramApiException {
+        if (usersRepository.findUsersByChatId(message.getChatId()).get()
+                .getPhoneNumber() == null) {
+            List<List<InlineKeyboardButton>> button = new ArrayList<>();
+            button.add(Collections.singletonList(
+                    InlineKeyboardButton.builder()
+                            .text(InfoMenuEnum.CONTACT.getInfo())
+                            .callbackData(InfoMenuEnum.CONTACT.name())
+                            .build()));
+            execute(SendMessage.builder().text("Вам необходимо зарегистрироваться")
+                    .chatId(message.getChatId())
+                    .replyMarkup(InlineKeyboardMarkup.builder().
+                            keyboard(button).build())
+                    .build());
+        } else {
+            Info info = infoService.getInfo(1L);
+            execute(SendMessage.builder().text(MessagesForUsers.MESSAGE_FOR_NEW_TUTOR +
+                    "\n" + info.getWorkMode() + "по адресу: " +
+                    info.getAddress() + "\n\n Введите пожалуйста дату и время, " +
+                    "когда Вы сможете посетить наш приют, в формате: \n\n" +
+                    MessagesForUsers.FORMAT_DATE_TIME)
+                    .chatId(message.getChatId())
+                    .build());
+        }
+
+
     }
 
     private void choosingOfPet(Message message) throws TelegramApiException,
@@ -154,18 +197,28 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             List<Avatar> avatars = avatarService.getAvatarsByPetId(pet.getId());
             File image = ResourceUtils.getFile(avatars.get(0).getFilePath());
             InputFile inputFile = new InputFile(image, image.getName());
+
+            List<List<InlineKeyboardButton>> button = new ArrayList<>();
+            button.add(Collections.singletonList(
+                    InlineKeyboardButton.builder()
+                            .text("Выбрать этого питомца")
+                            .callbackData("TAKING")
+                            .build())
+            );
+
             execute(SendMessage.builder()
                     .text("id: " + pet.getId() + "\nИмя: " + pet.getName()
                             + "\nВозраст: " + pet.getAge())
                     .chatId(message.getChatId().toString())
                     .build());
+
             execute(SendPhoto.builder()
                     .photo(inputFile)
-                    .replyMarkup((ReplyKeyboard) InlineKeyboardButton
-                            .builder()
-                            .text("Выбрать этого питомца")
-                            .callbackData(pet.getId().toString()))
-                    .chatId(message.getChatId().toString()).build());
+                    .chatId(message.getChatId().toString())
+                    .replyMarkup(InlineKeyboardMarkup.builder().
+                            keyboard(button).build())
+                    .build());
+
         }
     }
 
@@ -253,6 +306,13 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
     }
 
     private void processingStartMenu(Message message) throws TelegramApiException {
+        User caller = message.getFrom();
+        if (usersRepository.findUsersByChatId(message.getChatId()).isEmpty()) {
+            Users newUser = new Users();
+            newUser.setUserName(caller.getFirstName());
+            newUser.setChatId(message.getChatId());
+            usersRepository.save(newUser);
+        }
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
         for (StartMenuEnum menu : StartMenuEnum.values()) {
             buttons.add(Collections.singletonList(
