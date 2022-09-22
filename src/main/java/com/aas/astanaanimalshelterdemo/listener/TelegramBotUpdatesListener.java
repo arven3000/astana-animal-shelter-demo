@@ -1,19 +1,30 @@
 package com.aas.astanaanimalshelterdemo.listener;
 
+import com.aas.astanaanimalshelterdemo.botModel.AnimalType;
+import com.aas.astanaanimalshelterdemo.botModel.Avatar;
 import com.aas.astanaanimalshelterdemo.botModel.Info;
+import com.aas.astanaanimalshelterdemo.botModel.Pet;
+import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.AdoptiveParentsMenuEnum;
+import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.ArrangementMenuEnum;
+import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.InfoMenuEnum;
+import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.StartMenuEnum;
+import com.aas.astanaanimalshelterdemo.botService.AvatarService;
 import com.aas.astanaanimalshelterdemo.botService.InfoService;
+import com.aas.astanaanimalshelterdemo.botService.PetService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.MessageEntity;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 @Component
@@ -25,13 +36,16 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
     @Value("${telegram.bot.username}")
     private String username;
 
-    private Message messageOfUser;
-    private Message messageOfBot;
-
     private final InfoService infoService;
+    private final PetService petService;
+    private final AvatarService avatarService;
 
-    public TelegramBotUpdatesListener(InfoService infoService) {
+    public TelegramBotUpdatesListener(InfoService infoService,
+                                      PetService petService,
+                                      AvatarService avatarService) {
         this.infoService = infoService;
+        this.petService = petService;
+        this.avatarService = avatarService;
     }
 
     @Override
@@ -46,150 +60,213 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage()) {
-            messageOfUser = update.getMessage();
+        if (update.hasCallbackQuery()) {
+            try {
+                handleCallBack(update.getCallbackQuery());
+            } catch (TelegramApiException | FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        } else if (update.hasMessage()) {
             try {
                 handleMessage(update.getMessage());
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
-        } else if (update.hasCallbackQuery()) {
-            messageOfBot = update.getMessage();
-            try {
-                handleCallBack(update.getCallbackQuery());
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 
-    /**
-     * Обработка команд.
-     */
-    public void handleMessage(Message message) throws TelegramApiException {
+    private void handleMessage(Message message) throws TelegramApiException {
         if (message.hasText() && message.hasEntities()) {
-            Optional<MessageEntity> commandEntity =
-                    message.getEntities().stream().filter(e -> "bot_command".
-                            equals(e.getType())).findFirst();
-            if (commandEntity.isPresent()) {
+            Optional<MessageEntity> first = message.getEntities()
+                    .stream()
+                    .filter(f -> "bot_command".equals(f.getType()))
+                    .findFirst();
+            if (first.isPresent()) {
                 String command = message.getText()
-                        .substring(commandEntity.get().getOffset(),
-                                commandEntity.get().getLength());
-                switch (command) {
-                    case "/start": processingCommandStart(message);
+                        .substring(first.get().getOffset(),
+                                first.get().getLength());
+                if ("/start".equals(command)) {
+                    processingStartMenu(message);
                 }
             }
         }
     }
 
-    /**
-     * Обработка команды /start
-     * @param message
-     * @throws TelegramApiException
-     */
-    private void processingCommandStart(Message message) throws TelegramApiException {
-        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
-        buttons.add(
-                Collections.singletonList(
-                        InlineKeyboardButton.builder()
-                                .text("Узнать информацию о приюте")
-                                .callbackData("Узнать информацию о приюте")
-                                .build()
-                )
-        );
-        buttons.add(
-                Collections.singletonList(
-                        InlineKeyboardButton.builder()
-                                .text("Как взять собаку из приюта")
-                                .callbackData("Как взять собаку из приюта")
-                                .build()
-                )
-        );
-        buttons.add(
-                Collections.singletonList(
-                        InlineKeyboardButton.builder()
-                                .text("Прислать отчет")
-                                .callbackData("Прислать отчет")
-                                .build()
-                )
-        );
-        buttons.add(
-                Collections.singletonList(
-                        InlineKeyboardButton.builder()
-                                .text("Позвать волонтера")
-                                .callbackData("Позвать волонтера")
-                                .build()
-                )
-        );
-
-        execute(
-                SendMessage.builder()
-                        .text("Здравствуйте, " + message.getFrom().getFirstName() + "! \n"
-                        + "Вас приветствует телеграм-бот приюта Счастливый питомец. \n"
-                        + "Выберете пожалуйста необходимое действие.")
-                        .chatId(message.getChatId().toString())
-                        .replyMarkup(InlineKeyboardMarkup.builder()
-                                .keyboard(buttons)
-                                .build())
-                        .build()
-        );
-    }
-
-
-    private void handleCallBack(CallbackQuery callbackQuery) throws TelegramApiException {
+    private void handleCallBack(CallbackQuery callbackQuery) throws TelegramApiException,
+            FileNotFoundException {
         Message message = callbackQuery.getMessage();
-        String button = callbackQuery.getData();
-        switch (button) {
-            case "Узнать информацию о приюте" : processingButtonInfo(message);
+        String[] param = callbackQuery.getData().split(":");
+        String action = param[0];
+        switch (action) {
+
+            case "INFORMATION" -> processingInfoMenu(message);
+
+            case "TAKE" -> processingAdoptiveParentsMenu(message);
+
+            case "REPORT" -> execute(SendMessage.builder()
+                    .text("Отчет о животном")
+                    .chatId(message.getChatId().toString())
+//                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                    .build());
+
+            case "CALL" -> execute(SendMessage.builder()
+                    .text("Вызов волонтера")
+                    .chatId(message.getChatId().toString())
+//                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                    .build());
+
+            case "WORKING" -> {
+                Info info = infoService.getInfo(1l);
+                execute(SendMessage.builder()
+                        .text(info.getWorkMode() + "\n"
+                                + info.getAddress() + "\n"
+                                + info.getContacts())
+                        .chatId(message.getChatId().toString())
+//                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+
+            case "SAFETY" -> {
+                Info info = infoService.getInfo(1l);
+                execute(SendMessage.builder()
+                        .text(info.getSafetyPrecautions())
+                        .chatId(message.getChatId().toString())
+//                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+
+            case "CONTACT" -> execute(SendMessage.builder()
+                    .text("Контактные данные")
+                    .chatId(message.getChatId().toString())
+//                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                    .build());
+
+            case "ARRANGEMENT" -> processingArrangementMenu(message);
+
+            case "CHOOSING" -> choosingOfPet(message);
         }
     }
 
-    private void processingButtonInfo(Message message) throws TelegramApiException {
+    private void choosingOfPet(Message message) throws TelegramApiException,
+            FileNotFoundException {
+        List<Pet> petList = petService.getPetsByTypeOfAnimal(AnimalType.DOG);
+        for (Pet pet : petList) {
+            List<Avatar> avatars = avatarService.getAvatarsByPetId(pet.getId());
+            File image = ResourceUtils.getFile(avatars.get(0).getFilePath());
+            InputFile inputFile = new InputFile(image, image.getName());
+            execute(SendMessage.builder()
+                    .text("id: " + pet.getId() + "\nИмя: " + pet.getName()
+                            + "\nВозраст: " + pet.getAge())
+                    .chatId(message.getChatId().toString())
+                    .build());
+            execute(SendPhoto.builder()
+                    .photo(inputFile)
+                    .replyMarkup((ReplyKeyboard) InlineKeyboardButton
+                            .builder()
+                            .text("Выбрать этого питомца")
+                            .callbackData(pet.getId().toString()))
+                    .chatId(message.getChatId().toString()).build());
+        }
+    }
+
+    private void processingArrangementMenu(Message message) throws TelegramApiException {
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
-        buttons.add(
-                Collections.singletonList(
-                        InlineKeyboardButton.builder()
-                                .text("Узнать режим работы и адрес приюта")
-                                .callbackData("Узнать режим работы и адрес приюта")
-                                .build()
-                )
-        );
-        buttons.add(
-                Collections.singletonList(
-                        InlineKeyboardButton.builder()
-                                .text("Узнать правила поведения в приюте")
-                                .callbackData("Узнать правила поведения в приюте")
-                                .build()
-                )
-        );
-        buttons.add(
-                Collections.singletonList(
-                        InlineKeyboardButton.builder()
-                                .text("Ввести контактные данные")
-                                .callbackData("Ввести контактные данные")
-                                .build()
-                )
-        );
-        buttons.add(
-                Collections.singletonList(
-                        InlineKeyboardButton.builder()
-                                .text("Позвать волонтера")
-                                .callbackData("Позвать волонтера")
-                                .build()
-                )
-        );
-        String aboutShelter = infoService.getInfo(2L).getAboutShelter();
-        execute(
-                SendMessage.builder()
-                        .text("Уважаемый, " + messageOfUser.getFrom().getFirstName()
-                                + "! \n\n" + aboutShelter +
-                                "\n\n Выберете пожалуйста дальнейшее действие.")
-                        .chatId(message.getChatId().toString())
-                        .replyMarkup(InlineKeyboardMarkup.builder()
-                                .keyboard(buttons)
-                                .build())
-                        .build()
-        );
+        for (ArrangementMenuEnum menu : ArrangementMenuEnum.values()) {
+            buttons.add(Collections.singletonList(
+                    InlineKeyboardButton.builder()
+                            .text(menu.getInfo())
+                            .callbackData(menu.name())
+                            .build())
+            );
+        }
+        buttons.add(Collections.singletonList(
+                InlineKeyboardButton.builder()
+                        .text(StartMenuEnum.CHOOSING.getInfo())
+                        .callbackData(StartMenuEnum.CHOOSING.name())
+                        .build()));
+
+        execute(SendMessage.builder()
+                .text("Выбирите категорию животного")
+                .chatId(message.getChatId().toString())
+                .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                .build());
+    }
+
+    private void processingAdoptiveParentsMenu(Message message) throws TelegramApiException {
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+        for (AdoptiveParentsMenuEnum menu : AdoptiveParentsMenuEnum.values()) {
+            buttons.add(Collections.singletonList(
+                    InlineKeyboardButton.builder()
+                            .text(menu.getInfo())
+                            .callbackData(menu.name())
+                            .build())
+            );
+        }
+        buttons.add(Collections.singletonList(
+                InlineKeyboardButton.builder()
+                        .text(InfoMenuEnum.CONTACT.getInfo())
+                        .callbackData(InfoMenuEnum.CONTACT.name())
+                        .build()));
+        buttons.add(Collections.singletonList(
+                InlineKeyboardButton.builder()
+                        .text(StartMenuEnum.CALL.getInfo())
+                        .callbackData(StartMenuEnum.CALL.name())
+                        .build()));
+        buttons.add(Collections.singletonList(
+                InlineKeyboardButton.builder()
+                        .text(StartMenuEnum.CHOOSING.getInfo())
+                        .callbackData(StartMenuEnum.CHOOSING.name())
+                        .build()));
+        execute(SendMessage.builder()
+                .text("Подбор животного")
+                .chatId(message.getChatId().toString())
+                .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                .build());
+    }
+
+    private void processingInfoMenu(Message message) throws TelegramApiException {
+        Info info = infoService.getInfo(1l);
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+        for (InfoMenuEnum menu : InfoMenuEnum.values()) {
+            buttons.add(Collections.singletonList(
+                    InlineKeyboardButton.builder()
+                            .text(menu.getInfo())
+                            .callbackData(menu.name())
+                            .build())
+            );
+        }
+        buttons.add(Collections.singletonList(
+                InlineKeyboardButton.builder()
+                        .text(StartMenuEnum.CALL.getInfo())
+                        .callbackData(StartMenuEnum.CALL.name())
+                        .build()));
+        buttons.add(Collections.singletonList(
+                InlineKeyboardButton.builder()
+                        .text(StartMenuEnum.CHOOSING.getInfo())
+                        .callbackData(StartMenuEnum.CHOOSING.name())
+                        .build()));
+        execute(SendMessage.builder()
+                .text(info.getAboutShelter())
+                .chatId(message.getChatId().toString())
+                .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                .build());
+    }
+
+    private void processingStartMenu(Message message) throws TelegramApiException {
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+        for (StartMenuEnum menu : StartMenuEnum.values()) {
+            buttons.add(Collections.singletonList(
+                    InlineKeyboardButton.builder()
+                            .text(menu.getInfo())
+                            .callbackData(menu.name())
+                            .build())
+            );
+        }
+        execute(SendMessage.builder()
+                .text("Добро пожаловать в приют!")
+                .chatId(message.getChatId().toString())
+                .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                .build());
     }
 
 }

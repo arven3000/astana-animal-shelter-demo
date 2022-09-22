@@ -1,7 +1,7 @@
 -- liquibase formatted sql
 
--- changeset sli:1
-CREATE TABLE info
+-- changeSet sli:1
+CREATE TABLE IF NOT EXISTS info
 (
     id                                      BIGSERIAL PRIMARY KEY,
     about_Shelter                           TEXT,

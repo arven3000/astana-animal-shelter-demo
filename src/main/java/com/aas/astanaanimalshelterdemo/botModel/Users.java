@@ -19,17 +19,16 @@ public class Users {
     private String phoneNumber;
     private String emailAddress;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "user")
-    private Collection<Report> reports;
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "user")
+//    private Collection<Report> reports;
 
-    public Users(Long id, Long chatId, String userName, String phoneNumber, String emailAddress, Report reports) {
+    public Users(Long id, Long chatId, String userName, String phoneNumber, String emailAddress) {
         this.id = id;
         this.chatId = chatId;
         this.userName = userName;
         this.phoneNumber = phoneNumber;
         this.emailAddress = emailAddress;
-        this.reports = (Collection<Report>) reports;
     }
 
     public Users() {
@@ -76,25 +75,21 @@ public class Users {
         this.emailAddress = emailAddress;
     }
 
-    public Collection<Report> getReports() {
-        return reports;
-    }
-
-    public void setReports(Collection<Report> reports) {
-        this.reports = reports;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Users users = (Users) o;
-        return Objects.equals(id, users.id) && Objects.equals(chatId, users.chatId) && Objects.equals(userName, users.userName) && Objects.equals(phoneNumber, users.phoneNumber) && Objects.equals(emailAddress, users.emailAddress);
+        return Objects.equals(id, users.id) && Objects.equals(chatId, users.chatId)
+                && Objects.equals(userName, users.userName)
+                && Objects.equals(phoneNumber, users.phoneNumber)
+                && Objects.equals(emailAddress, users.emailAddress);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, chatId, userName, phoneNumber, emailAddress);
+        return Objects.hash(id, chatId, userName, phoneNumber,
+                emailAddress);
     }
 
     @Override

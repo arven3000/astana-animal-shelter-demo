@@ -7,6 +7,7 @@ import java.util.Objects;
  * Сущность для хранения отчетов опекунов.
  */
 @Entity
+@Table(name = "reports")
 public class Report {
 
     @Id
@@ -28,17 +29,32 @@ public class Report {
     private Pet pet;
 
     /**
-     * Идентификатор фоторафии, направленной опекуном.
+     * Описание рациона питания питомца.
      */
-    @OneToOne
-    private Avatar avatar;
-
     private String diet;
+
+    /**
+     * Описание общего самочувствия питомца.
+     */
     private String stateOfHealth;
+
+    /**
+     * Изменение в поведении: отказ от старых привычек, приобретение новых.
+     */
     private String habits;
 
     public Report() {
 
+    }
+
+    public Report(Long id, Users user, Pet pet, String diet, String stateOfHealth,
+                  String habits) {
+        this.id = id;
+        this.user = user;
+        this.pet = pet;
+        this.diet = diet;
+        this.stateOfHealth = stateOfHealth;
+        this.habits = habits;
     }
 
     public Long getId() {
@@ -63,14 +79,6 @@ public class Report {
 
     public void setPet(Pet pet) {
         this.pet = pet;
-    }
-
-    public Avatar getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(Avatar avatar) {
-        this.avatar = avatar;
     }
 
     public String getDiet() {
@@ -102,12 +110,16 @@ public class Report {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Report report = (Report) o;
-        return Objects.equals(id, report.id) && Objects.equals(user, report.user) && Objects.equals(pet, report.pet) && Objects.equals(avatar, report.avatar) && Objects.equals(diet, report.diet) && Objects.equals(stateOfHealth, report.stateOfHealth) && Objects.equals(habits, report.habits);
+        return Objects.equals(id, report.id) && Objects.equals(user, report.user)
+                && Objects.equals(pet, report.pet)
+                && Objects.equals(diet, report.diet)
+                && Objects.equals(stateOfHealth, report.stateOfHealth)
+                && Objects.equals(habits, report.habits);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, user, pet, avatar, diet, stateOfHealth, habits);
+        return Objects.hash(id, user, pet, diet, stateOfHealth, habits);
     }
 
     @Override
@@ -116,7 +128,6 @@ public class Report {
                 "id=" + id +
                 ", user=" + user +
                 ", pet=" + pet +
-                ", avatar=" + avatar +
                 ", diet='" + diet + '\'' +
                 ", stateOfHealth='" + stateOfHealth + '\'' +
                 ", habits='" + habits + '\'' +

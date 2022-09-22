@@ -66,6 +66,32 @@ public class Info {
 
     }
 
+    public Info(Long id, String aboutShelter, String workMode, String address,
+                String contacts, String safetyPrecautions, String datingRules,
+                String tipsOfDogHandler, String listOfDogHandler,
+                String reasonsForRefusal, String listOfDocuments,
+                String adviceForTransporting, String adviceForHomeForPuppy,
+                String adviceForHomeForAdultDog, String adviceForHomeForDogWithDisability,
+                String mediaType, byte[] location) {
+        this.id = id;
+        this.aboutShelter = aboutShelter;
+        this.workMode = workMode;
+        this.address = address;
+        this.contacts = contacts;
+        this.safetyPrecautions = safetyPrecautions;
+        this.datingRules = datingRules;
+        this.tipsOfDogHandler = tipsOfDogHandler;
+        this.listOfDogHandler = listOfDogHandler;
+        this.reasonsForRefusal = reasonsForRefusal;
+        this.listOfDocuments = listOfDocuments;
+        this.adviceForTransporting = adviceForTransporting;
+        this.adviceForHomeForPuppy = adviceForHomeForPuppy;
+        this.adviceForHomeForAdultDog = adviceForHomeForAdultDog;
+        this.adviceForHomeForDogWithDisability = adviceForHomeForDogWithDisability;
+        this.mediaType = mediaType;
+        this.location = location;
+    }
+
     public Long getId() {
         return id;
     }
