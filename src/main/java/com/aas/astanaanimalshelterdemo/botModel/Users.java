@@ -2,10 +2,10 @@ package com.aas.astanaanimalshelterdemo.botModel;
 
 
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
+import java.util.Collection;
 import java.util.Objects;
 
 @Entity
@@ -18,6 +18,10 @@ public class Users {
     private String userName;
     private String phoneNumber;
     private String emailAddress;
+
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "user")
+//    private Collection<Report> reports;
 
     public Users(Long id, Long chatId, String userName, String phoneNumber, String emailAddress) {
         this.id = id;
@@ -76,12 +80,16 @@ public class Users {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Users users = (Users) o;
-        return Objects.equals(id, users.id) && Objects.equals(chatId, users.chatId) && Objects.equals(userName, users.userName) && Objects.equals(phoneNumber, users.phoneNumber) && Objects.equals(emailAddress, users.emailAddress);
+        return Objects.equals(id, users.id) && Objects.equals(chatId, users.chatId)
+                && Objects.equals(userName, users.userName)
+                && Objects.equals(phoneNumber, users.phoneNumber)
+                && Objects.equals(emailAddress, users.emailAddress);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, chatId, userName, phoneNumber, emailAddress);
+        return Objects.hash(id, chatId, userName, phoneNumber,
+                emailAddress);
     }
 
     @Override
