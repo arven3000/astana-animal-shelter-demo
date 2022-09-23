@@ -2,6 +2,7 @@ package com.aas.astanaanimalshelterdemo.botModel;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pengrad.telegrambot.model.User;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -16,6 +17,9 @@ public class Pet {
     private Long id;
 
     private String name;
+
+    @OneToOne
+    private Users usersId;
 
     @Enumerated(EnumType.STRING)
     private AnimalType typeOfAnimal;
