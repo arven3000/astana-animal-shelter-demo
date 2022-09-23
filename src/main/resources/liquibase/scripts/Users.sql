@@ -5,6 +5,7 @@
 CREATE TABLE IF NOT EXISTS users
 (
     id           SERIAL PRIMARY KEY,
+
     chat_id       BIGINT NOT NULL,
     user_name     VARCHAR NOT NULL,
     phone_number  VARCHAR   ,
