@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - include:
+      file: liquibase/scripts/Users.sql
+  - include:
+      file: liquibase/scripts/tableOfInfo.sql
+  - include:
+      file: liquibase/scripts/tableOfPets.sql
+  - include:
+      file: liquibase/scripts/insert_int_table.sql
+  - include:
+      file: liquibase/scripts/tableOfAvatars.sql
+  - include:
+      file: liquibase/scripts/tableOfReports.sql
