@@ -1,10 +1,10 @@
 package com.aas.astanaanimalshelterdemo.botModel;
 
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -19,16 +19,25 @@ public class Users {
     private String phoneNumber;
     private String emailAddress;
 
+    private LocalDateTime dataTimeOfPet;
+
+    @Enumerated(EnumType.STRING)
+    private UserType role;
+
+    @OneToOne
+    private Pet petId;
+
 //    @JsonIgnore
 //    @OneToMany(mappedBy = "user")
 //    private Collection<Report> reports;
 
-    public Users(Long id, Long chatId, String userName, String phoneNumber, String emailAddress) {
+    public Users(Long id, Long chatId, String userName, String phoneNumber, String emailAddress, LocalDateTime dataTimeOfPet) {
         this.id = id;
         this.chatId = chatId;
         this.userName = userName;
         this.phoneNumber = phoneNumber;
         this.emailAddress = emailAddress;
+        this.dataTimeOfPet = dataTimeOfPet;
     }
 
     public Users() {
@@ -75,6 +84,30 @@ public class Users {
         this.emailAddress = emailAddress;
     }
 
+    public LocalDateTime getDataTimeOfPet() {
+        return dataTimeOfPet;
+    }
+
+    public void setDataTimeOfPet(LocalDateTime dataTimeOfPet) {
+        this.dataTimeOfPet = dataTimeOfPet;
+    }
+
+    public UserType getRole() {
+        return role;
+    }
+
+    public void setRole(UserType role) {
+        this.role = role;
+    }
+
+    public Pet getPetId() {
+        return petId;
+    }
+
+    public void setPetId(Pet petId) {
+        this.petId = petId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -100,6 +133,9 @@ public class Users {
                 ", userName='" + userName + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", emailAddress='" + emailAddress + '\'' +
+                ", dataTimeOfPet=" + dataTimeOfPet +
+                ", role=" + role +
+                ", petId=" + petId +
                 '}';
     }
 }

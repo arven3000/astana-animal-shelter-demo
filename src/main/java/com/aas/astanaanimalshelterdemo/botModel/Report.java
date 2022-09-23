@@ -1,6 +1,7 @@
 package com.aas.astanaanimalshelterdemo.botModel;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -26,7 +27,7 @@ public class Report {
      */
     @ManyToOne
     @JoinColumn(name = "pet_id")
-    private Pet pet;
+    private Pet petId;
 
     /**
      * Описание рациона питания питомца.
@@ -43,18 +44,24 @@ public class Report {
      */
     private String habits;
 
+    /**
+     * Дата отчетов
+     */
+    private LocalDateTime dataTime;
+
     public Report() {
 
     }
 
-    public Report(Long id, Users user, Pet pet, String diet, String stateOfHealth,
-                  String habits) {
+    public Report(Long id, Users user, Pet petId, String diet, String stateOfHealth,
+                  String habits, LocalDateTime dataTime) {
         this.id = id;
         this.user = user;
-        this.pet = pet;
+        this.petId = petId;
         this.diet = diet;
         this.stateOfHealth = stateOfHealth;
         this.habits = habits;
+        this.dataTime = dataTime;
     }
 
     public Long getId() {
@@ -73,12 +80,12 @@ public class Report {
         this.user = user;
     }
 
-    public Pet getPet() {
-        return pet;
+    public Pet getPetId() {
+        return petId;
     }
 
-    public void setPet(Pet pet) {
-        this.pet = pet;
+    public void setPetId(Pet pet) {
+        this.petId = pet;
     }
 
     public String getDiet() {
@@ -105,21 +112,33 @@ public class Report {
         this.habits = habits;
     }
 
+    public LocalDateTime getDataTime() {
+        return dataTime;
+    }
+
+    public void setDataTime(LocalDateTime dataTime) {
+        this.dataTime = dataTime;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Report report = (Report) o;
-        return Objects.equals(id, report.id) && Objects.equals(user, report.user)
-                && Objects.equals(pet, report.pet)
-                && Objects.equals(diet, report.diet)
-                && Objects.equals(stateOfHealth, report.stateOfHealth)
-                && Objects.equals(habits, report.habits);
+        return Objects.equals(id,
+                report.id) && Objects.equals(user, report.user)
+                && Objects.equals(petId,
+                report.petId) && Objects.equals(diet,
+                report.diet) && Objects.equals(stateOfHealth,
+                report.stateOfHealth) && Objects.equals(habits,
+                report.habits) && Objects.equals(dataTime,
+                report.dataTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, user, pet, diet, stateOfHealth, habits);
+        return Objects.hash(id, user, petId, diet, stateOfHealth, habits, dataTime);
     }
 
     @Override
@@ -127,10 +146,11 @@ public class Report {
         return "Report{" +
                 "id=" + id +
                 ", user=" + user +
-                ", pet=" + pet +
+                ", petId=" + petId +
                 ", diet='" + diet + '\'' +
                 ", stateOfHealth='" + stateOfHealth + '\'' +
                 ", habits='" + habits + '\'' +
+                ", dataTime=" + dataTime +
                 '}';
     }
 }
