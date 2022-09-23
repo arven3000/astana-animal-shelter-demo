@@ -8,5 +8,6 @@ CREATE TABLE IF NOT EXISTS reports
     pet_id BIGINT,
     diet TEXT,
     state_of_health TEXT,
-    habits TEXT
+    habits TEXT,
+    data_time TIMESTAMP
 )
