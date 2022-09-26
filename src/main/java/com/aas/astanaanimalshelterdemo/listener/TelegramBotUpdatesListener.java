@@ -5,11 +5,13 @@ import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.AdoptiveParentsMenuE
 import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.ArrangementMenuEnum;
 import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.InfoMenuEnum;
 import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.StartMenuEnum;
+import com.aas.astanaanimalshelterdemo.botRepositories.PetRepository;
 import com.aas.astanaanimalshelterdemo.botRepositories.UsersRepository;
 import com.aas.astanaanimalshelterdemo.botService.AvatarService;
 import com.aas.astanaanimalshelterdemo.botService.InfoService;
 import com.aas.astanaanimalshelterdemo.botService.PetService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -25,7 +27,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
@@ -40,15 +47,18 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
     private final PetService petService;
     private final AvatarService avatarService;
     private final UsersRepository usersRepository;
+    private final PetRepository petRepository;
 
     public TelegramBotUpdatesListener(InfoService infoService,
                                       PetService petService,
                                       AvatarService avatarService,
-                                      UsersRepository usersRepository) {
+                                      UsersRepository usersRepository,
+                                      PetRepository petRepository) {
         this.infoService = infoService;
         this.petService = petService;
         this.avatarService = avatarService;
         this.usersRepository = usersRepository;
+        this.petRepository = petRepository;
     }
 
     @Override
@@ -90,6 +100,44 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                                 first.get().getLength());
                 if ("/start".equals(command)) {
                     processingStartMenu(message);
+                }
+            }
+        } else if (message.hasText()) {
+            Pattern pattern = Pattern.compile("([0-9.:\\s]{16})");
+            Matcher matcher = pattern.matcher(message.getText());
+            if (matcher.matches()) {
+                String dateTime = matcher.group();
+                LocalDateTime dateTimeOfVisit = parseDateTime(dateTime);
+                if (Objects.isNull(dateTimeOfVisit)) {
+                    execute(SendMessage.builder()
+                            .text("Некорректный формат даты и/или времени.\n"
+                                    + "Введите дату и время в формате:\n"
+                                    + MessagesForUsers.FORMAT_DATE_TIME)
+                            .chatId(message.getChatId()).build());
+                } else {
+                    execute(SendMessage.builder()
+                            .text("Спасибо. Мы будем Вас ждать в нашем приюте \n"
+                                    + dateTimeOfVisit)
+                            .chatId(message.getChatId()).build());
+                    Users user = usersRepository.findUsersByChatId(message.getChatId())
+                            .orElseThrow();
+                    user.setDataTimeOfPet(dateTimeOfVisit);
+                    usersRepository.save(user);
+                }
+            } else {
+                Long petId = Long.parseLong(message.getText());
+                Pet pet = petService.getPetByPetId(petId);
+                if ( pet != null) {
+                    takingPet(message);
+                    Users user = usersRepository.findUsersByChatId(message.getChatId())
+                                    .orElseThrow();
+//                    usersRepository.findUsersByChatId(message.getChatId()).orElseThrow()
+//                            .setPet(pet);
+//                    petRepository.findById(petId).orElseThrow().setUsers(user);
+                    pet.setUsers(user);
+                    user.setPet(pet);
+                    usersRepository.save(user);
+                    petRepository.save(pet);
                 }
             }
         }
@@ -158,13 +206,23 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
             case "CHOOSING" -> choosingOfPet(message);
 
-            case "TAKING" -> takingPet(message);
+//            case "TAKING.\*" -> takingPet(message);
+        }
+    }
+
+    @Nullable
+    private LocalDateTime parseDateTime(String dateTime) {
+        try {
+            return LocalDateTime.parse(dateTime, DateTimeFormatter
+                    .ofPattern("dd.MM.yyyy HH:mm"));
+        } catch (DateTimeParseException e) {
+            return null;
         }
     }
 
     private void takingPet(Message message) throws TelegramApiException {
-        if (usersRepository.findUsersByChatId(message.getChatId()).get()
-                .getPhoneNumber() == null) {
+        Users user = usersRepository.findUsersByChatId(message.getChatId()).orElseThrow();
+        if (user.getPhoneNumber() == null) {
             List<List<InlineKeyboardButton>> button = new ArrayList<>();
             button.add(Collections.singletonList(
                     InlineKeyboardButton.builder()
@@ -181,13 +239,11 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             execute(SendMessage.builder().text(MessagesForUsers.MESSAGE_FOR_NEW_TUTOR +
                     "\n" + info.getWorkMode() + "по адресу: " +
                     info.getAddress() + "\n\n Введите пожалуйста дату и время, " +
-                    "когда Вы сможете посетить наш приют, в формате: \n\n" +
+                    "когда Вы сможете посетить наш приют, в формате: \n" +
                     MessagesForUsers.FORMAT_DATE_TIME)
                     .chatId(message.getChatId())
                     .build());
         }
-
-
     }
 
     private void choosingOfPet(Message message) throws TelegramApiException,
@@ -195,16 +251,19 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
         List<Pet> petList = petService.getPetsByTypeOfAnimal(AnimalType.DOG);
         for (Pet pet : petList) {
             List<Avatar> avatars = avatarService.getAvatarsByPetId(pet.getId());
+            if (avatars == null) {
+                break;
+            }
             File image = ResourceUtils.getFile(avatars.get(0).getFilePath());
             InputFile inputFile = new InputFile(image, image.getName());
 
-            List<List<InlineKeyboardButton>> button = new ArrayList<>();
-            button.add(Collections.singletonList(
-                    InlineKeyboardButton.builder()
-                            .text("Выбрать этого питомца")
-                            .callbackData("TAKING")
-                            .build())
-            );
+//            List<List<InlineKeyboardButton>> button = new ArrayList<>();
+//            button.add(Collections.singletonList(
+//                    InlineKeyboardButton.builder()
+//                            .text("Выбрать этого питомца")
+//                            .callbackData("TAKING" + ". idOfPet = " + pet.getId())
+//                            .build())
+//            );
 
             execute(SendMessage.builder()
                     .text("id: " + pet.getId() + "\nИмя: " + pet.getName()
@@ -215,11 +274,16 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             execute(SendPhoto.builder()
                     .photo(inputFile)
                     .chatId(message.getChatId().toString())
-                    .replyMarkup(InlineKeyboardMarkup.builder().
-                            keyboard(button).build())
+//                    .replyMarkup(InlineKeyboardMarkup.builder().
+//                            keyboard(button).build())
                     .build());
 
         }
+
+        execute(SendMessage.builder()
+                .text("Если Вы выбрали питомца, то введите его id.")
+                .chatId(message.getChatId()).build());
+
     }
 
     private void processingArrangementMenu(Message message) throws TelegramApiException {
@@ -311,6 +375,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             Users newUser = new Users();
             newUser.setUserName(caller.getFirstName());
             newUser.setChatId(message.getChatId());
+            newUser.setRole(UserType.USER);
             usersRepository.save(newUser);
         }
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
