@@ -19,7 +19,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -111,13 +110,13 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                 if (Objects.isNull(dateTimeOfVisit)) {
                     execute(SendMessage.builder()
                             .text("Некорректный формат даты и/или времени.\n"
-                                    + "Введите дату и время в формате:\n"
-                                    + MessagesForUsers.FORMAT_DATE_TIME)
+                                  + "Введите дату и время в формате:\n"
+                                  + MessagesForUsers.FORMAT_DATE_TIME)
                             .chatId(message.getChatId()).build());
                 } else {
                     execute(SendMessage.builder()
                             .text("Спасибо. Мы будем Вас ждать в нашем приюте \n"
-                                    + dateTimeOfVisit)
+                                  + dateTimeOfVisit)
                             .chatId(message.getChatId()).build());
                     Users user = usersRepository.findUsersByChatId(message.getChatId())
                             .orElseThrow();
@@ -130,7 +129,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                 if ( pet != null) {
                     takingPet(message);
                     Users user = usersRepository.findUsersByChatId(message.getChatId())
-                                    .orElseThrow();
+                            .orElseThrow();
 //                    usersRepository.findUsersByChatId(message.getChatId()).orElseThrow()
 //                            .setPet(pet);
 //                    petRepository.findById(petId).orElseThrow().setUsers(user);
@@ -167,17 +166,18 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                     .build());
 
             case "WORKING" -> {
-                Info info = infoService.getInfo(1l);
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
                 execute(SendMessage.builder()
                         .text(info.getWorkMode() + "\n"
-                                + info.getAddress() + "\n"
-                                + info.getContacts())
+                              + info.getAddress() + "\n"
+                              + info.getContacts())
                         .chatId(message.getChatId().toString())
-//                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
                         .build());
 
                 File file = File.createTempFile("location", "jpg");
-                try (FileOutputStream fileOutputStream = new FileOutputStream(file)){
+                try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
                     fileOutputStream.write(info.getLocation());
                 }
                 InputFile inputFile = new InputFile(file);
@@ -188,11 +188,12 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             }
 
             case "SAFETY" -> {
-                Info info = infoService.getInfo(1l);
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
                 execute(SendMessage.builder()
                         .text(info.getSafetyPrecautions())
                         .chatId(message.getChatId().toString())
-//                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
                         .build());
             }
 
@@ -205,6 +206,96 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             case "ARRANGEMENT" -> processingArrangementMenu(message);
 
             case "CHOOSING" -> choosingOfPet(message);
+            case "START" -> processingStartMenu(message);
+            case "RULES" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getDatingRules())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+            case "DOCUMENTS" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getListOfDocuments())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+            case "TRANSPORTATION" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getAdviceForTransporting())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+
+            case "ADVICE" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getTipsOfDogHandler())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+            case "CYNOLOGIST" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getListOfDogHandler())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+            case "REFUSAL" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getReasonsForRefusal())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+
+            case "PUPPIES" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getAdviceForHomeForPuppy())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+            case "DOG_ADULT" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getAdviceForHomeForAdultDog())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+            case "DOG_LIMITED" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getAdviceForHomeForDogWithDisability())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+//            case "KITTENS" -> {
+//            }
+//            case "CAT_ADULT" -> {
+//            }
+//            case "CAT_LIMITED" -> {
+//            }
 
 //            case "TAKING.\*" -> takingPet(message);
         }
@@ -218,6 +309,21 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
         } catch (DateTimeParseException e) {
             return null;
         }
+    }
+    private static List<List<InlineKeyboardButton>> getButtons() {
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+
+        buttons.add(Collections.singletonList(
+                InlineKeyboardButton.builder()
+                        .text("Перейти к стартовому меню")
+                        .callbackData("START")
+                        .build()));
+        buttons.add(Collections.singletonList(
+                InlineKeyboardButton.builder()
+                        .text(StartMenuEnum.CHOOSING.getInfo())
+                        .callbackData(StartMenuEnum.CHOOSING.name())
+                        .build()));
+        return buttons;
     }
 
     private void takingPet(Message message) throws TelegramApiException {
@@ -237,10 +343,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
         } else {
             Info info = infoService.getInfo(1L);
             execute(SendMessage.builder().text(MessagesForUsers.MESSAGE_FOR_NEW_TUTOR +
-                    "\n" + info.getWorkMode() + "по адресу: " +
-                    info.getAddress() + "\n\n Введите пожалуйста дату и время, " +
-                    "когда Вы сможете посетить наш приют, в формате: \n" +
-                    MessagesForUsers.FORMAT_DATE_TIME)
+                                               "\n" + info.getWorkMode() + "по адресу: " +
+                                               info.getAddress() + "\n\n Введите пожалуйста дату и время, " +
+                                               "когда Вы сможете посетить наш приют, в формате: \n" +
+                                               MessagesForUsers.FORMAT_DATE_TIME)
                     .chatId(message.getChatId())
                     .build());
         }
@@ -267,7 +373,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
             execute(SendMessage.builder()
                     .text("id: " + pet.getId() + "\nИмя: " + pet.getName()
-                            + "\nВозраст: " + pet.getAge())
+                          + "\nВозраст: " + pet.getAge())
                     .chatId(message.getChatId().toString())
                     .build());
 
