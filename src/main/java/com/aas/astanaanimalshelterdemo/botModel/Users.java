@@ -25,7 +25,7 @@ public class Users {
     private UserType role;
 
     @OneToOne
-    private Pet petId;
+    private Pet pet;
 
 //    @JsonIgnore
 //    @OneToMany(mappedBy = "user")
@@ -100,12 +100,12 @@ public class Users {
         this.role = role;
     }
 
-    public Pet getPetId() {
-        return petId;
+    public Pet getPet() {
+        return pet;
     }
 
-    public void setPetId(Pet petId) {
-        this.petId = petId;
+    public void setPet(Pet pet) {
+        this.pet = pet;
     }
 
     @Override
@@ -135,7 +135,7 @@ public class Users {
                 ", emailAddress='" + emailAddress + '\'' +
                 ", dataTimeOfPet=" + dataTimeOfPet +
                 ", role=" + role +
-                ", petId=" + petId +
+                ", pet=" + pet +
                 '}';
     }
 }

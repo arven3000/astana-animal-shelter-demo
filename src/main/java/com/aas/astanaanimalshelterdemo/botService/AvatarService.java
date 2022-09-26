@@ -113,6 +113,11 @@ public class AvatarService {
      */
     public List<Avatar> getAvatarsByPetId(Long petId) {
         Pet pet = petRepository.findById(petId).orElseThrow();
-        return avatarRepository.findAvatarByPet(pet);
+        try {
+            return avatarRepository.findAvatarByPet(pet);
+        } catch (Exception e) {
+            return null;
+        }
+
     }
 }
