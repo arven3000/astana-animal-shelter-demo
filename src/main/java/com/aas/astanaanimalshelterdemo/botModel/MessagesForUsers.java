@@ -11,4 +11,9 @@ public class MessagesForUsers {
      * Формат даты и времени, в котором юзер должен их прислать
      */
     public static final String FORMAT_DATE_TIME = "дд.мм.гггг чч:мм";
+
+    /**
+     * Формат номера телефона.
+     */
+    public static final String FORMAT_PHONE_NUMBER = "+7(XXX)XXX-XX-XX";
 }

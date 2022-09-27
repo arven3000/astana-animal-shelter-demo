@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.ws.rs.NotFoundException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -112,12 +113,7 @@ public class AvatarService {
      * Получение Автаров по идентификатору питомца.
      */
     public List<Avatar> getAvatarsByPetId(Long petId) {
-        Pet pet = petRepository.findById(petId).orElseThrow();
-        try {
-            return avatarRepository.findAvatarByPet(pet);
-        } catch (Exception e) {
-            return null;
-        }
-
+        Pet pet = petRepository.findById(petId).orElseThrow(NotFoundException::new);
+        return avatarRepository.findAvatarByPet(pet);
     }
 }

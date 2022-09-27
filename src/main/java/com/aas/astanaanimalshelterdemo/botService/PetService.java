@@ -20,10 +20,6 @@ public class PetService {
     }
 
     public Pet getPetByPetId(Long petId) {
-        try {
-            return petRepository.findById(petId).orElseThrow();
-        } catch (Exception e) {
-            return null;
-        }
+        return petRepository.findById(petId).orElseThrow();
     }
 }
