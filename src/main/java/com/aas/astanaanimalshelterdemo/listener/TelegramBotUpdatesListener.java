@@ -120,7 +120,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                                     + dateTimeOfVisit)
                             .chatId(message.getChatId()).build());
                     Users user = usersRepository.findUsersByChatId(message.getChatId())
-                            .orElseThrow();
+                            .orElseThrow(NotFoundException::new);
                     user.setDataTimeOfPet(dateTimeOfVisit);
                     usersRepository.save(user);
                 }
@@ -130,7 +130,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                 if (pet != null) {
                     takingPet(message);
                     Users user = usersRepository.findUsersByChatId(message.getChatId())
-                            .orElseThrow();
+                            .orElseThrow(NotFoundException::new);
 //                    usersRepository.findUsersByChatId(message.getChatId()).orElseThrow()
 //                            .setPet(pet);
 //                    petRepository.findById(petId).orElseThrow().setUsers(user);
@@ -142,7 +142,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                 }
             } else if (message.getText().startsWith("+7(")) {
                 Users user = usersRepository.findUsersByChatId(message.getChatId())
-                        .orElseThrow();
+                        .orElseThrow(NotFoundException::new);
                 user.setPhoneNumber(message.getText());
                 usersRepository.save(user);
                 execute(SendMessage.builder()
@@ -150,7 +150,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                         .chatId(message.getChatId()).build());
             } else if (message.getText().contains("@")) {
                 Users user = usersRepository.findUsersByChatId(message.getChatId())
-                        .orElseThrow();
+                        .orElseThrow(NotFoundException::new);
                 user.setEmailAddress(message.getText());
                 usersRepository.save(user);
                 List<List<InlineKeyboardButton>> buttons = getButtons();
