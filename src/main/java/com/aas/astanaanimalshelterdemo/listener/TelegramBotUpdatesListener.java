@@ -103,10 +103,16 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                 }
             }
         } else if (message.hasText()) {
-            Pattern pattern = Pattern.compile("([0-9.:\\s]{16})");
-            Matcher matcher = pattern.matcher(message.getText());
-            if (matcher.matches()) {
-                String dateTime = matcher.group();
+            Pattern pattern1 = Pattern.compile("([0-9.:\\s]{16})");
+            Matcher matcher1 = pattern1.matcher(message.getText());
+            Pattern pattern2 = Pattern.compile("[0-9]");
+            Matcher matcher2 = pattern2.matcher(message.getText());
+            Pattern pattern3 = Pattern.compile("^(8|\\+7)(\\(\\d{3}\\))(\\d{3}-\\d{2}-\\d{2})$");
+            Matcher matcher3 = pattern3.matcher(message.getText());
+            Pattern pattern4 = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+            Matcher matcher4 = pattern4.matcher(message.getText());
+            if (matcher1.matches()) {
+                String dateTime = matcher1.group();
                 LocalDateTime dateTimeOfVisit = parseDateTime(dateTime);
                 if (Objects.isNull(dateTimeOfVisit)) {
                     execute(SendMessage.builder()
@@ -124,7 +130,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                     user.setDataTimeOfPet(dateTimeOfVisit);
                     usersRepository.save(user);
                 }
-            } else if (message.getText().matches("[0-9]")){
+            } else if (matcher2.matches()){
                 Long petId = Long.parseLong(message.getText());
                 Pet pet = petService.getPetByPetId(petId);
                 if (pet != null) {
@@ -140,7 +146,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                     usersRepository.save(user);
                     petRepository.save(pet);
                 }
-            } else if (message.getText().startsWith("+7(")) {
+            } else if (matcher3.matches()) {
                 Users user = usersRepository.findUsersByChatId(message.getChatId())
                         .orElseThrow(NotFoundException::new);
                 user.setPhoneNumber(message.getText());
@@ -148,7 +154,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                 execute(SendMessage.builder()
                         .text("Введите пожалуйста адрес Вашей электронной почты.")
                         .chatId(message.getChatId()).build());
-            } else if (message.getText().contains("@")) {
+            } else if (matcher4.matches()) {
                 Users user = usersRepository.findUsersByChatId(message.getChatId())
                         .orElseThrow(NotFoundException::new);
                 user.setEmailAddress(message.getText());
