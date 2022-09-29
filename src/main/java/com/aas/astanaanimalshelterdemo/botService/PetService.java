@@ -18,4 +18,8 @@ public class PetService {
     public List<Pet> getPetsByTypeOfAnimal(AnimalType typeOfAnimal) {
         return petRepository.findPetsByTypeOfAnimal(typeOfAnimal);
     }
+
+    public Pet getPetByPetId(Long petId) {
+        return petRepository.findById(petId).orElseThrow();
+    }
 }

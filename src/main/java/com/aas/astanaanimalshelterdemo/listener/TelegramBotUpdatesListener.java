@@ -5,11 +5,13 @@ import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.AdoptiveParentsMenuE
 import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.ArrangementMenuEnum;
 import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.InfoMenuEnum;
 import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.StartMenuEnum;
+import com.aas.astanaanimalshelterdemo.botRepositories.PetRepository;
 import com.aas.astanaanimalshelterdemo.botRepositories.UsersRepository;
 import com.aas.astanaanimalshelterdemo.botService.AvatarService;
 import com.aas.astanaanimalshelterdemo.botService.InfoService;
 import com.aas.astanaanimalshelterdemo.botService.PetService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -17,15 +19,20 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import javax.ws.rs.NotFoundException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
@@ -40,15 +47,18 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
     private final PetService petService;
     private final AvatarService avatarService;
     private final UsersRepository usersRepository;
+    private final PetRepository petRepository;
 
     public TelegramBotUpdatesListener(InfoService infoService,
                                       PetService petService,
                                       AvatarService avatarService,
-                                      UsersRepository usersRepository) {
+                                      UsersRepository usersRepository,
+                                      PetRepository petRepository) {
         this.infoService = infoService;
         this.petService = petService;
         this.avatarService = avatarService;
         this.usersRepository = usersRepository;
+        this.petRepository = petRepository;
     }
 
     @Override
@@ -92,6 +102,64 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                     processingStartMenu(message);
                 }
             }
+        } else if (message.hasText()) {
+            Pattern pattern = Pattern.compile("([0-9.:\\s]{16})");
+            Matcher matcher = pattern.matcher(message.getText());
+            if (matcher.matches()) {
+                String dateTime = matcher.group();
+                LocalDateTime dateTimeOfVisit = parseDateTime(dateTime);
+                if (Objects.isNull(dateTimeOfVisit)) {
+                    execute(SendMessage.builder()
+                            .text("Некорректный формат даты и/или времени.\n"
+                                    + "Введите дату и время в формате:\n"
+                                    + MessagesForUsers.FORMAT_DATE_TIME)
+                            .chatId(message.getChatId()).build());
+                } else {
+                    execute(SendMessage.builder()
+                            .text("Спасибо. Мы будем Вас ждать в нашем приюте \n"
+                                    + dateTimeOfVisit)
+                            .chatId(message.getChatId()).build());
+                    Users user = usersRepository.findUsersByChatId(message.getChatId())
+                            .orElseThrow(NotFoundException::new);
+                    user.setDataTimeOfPet(dateTimeOfVisit);
+                    usersRepository.save(user);
+                }
+            } else if (message.getText().matches("[0-9]")){
+                Long petId = Long.parseLong(message.getText());
+                Pet pet = petService.getPetByPetId(petId);
+                if (pet != null) {
+                    takingPet(message);
+                    Users user = usersRepository.findUsersByChatId(message.getChatId())
+                            .orElseThrow(NotFoundException::new);
+//                    usersRepository.findUsersByChatId(message.getChatId()).orElseThrow()
+//                            .setPet(pet);
+//                    petRepository.findById(petId).orElseThrow().setUsers(user);
+                    pet.setUsers(user);
+                    user.setPet(pet);
+                    user.setRole(UserType.OWNER);
+                    usersRepository.save(user);
+                    petRepository.save(pet);
+                }
+            } else if (message.getText().startsWith("+7(")) {
+                Users user = usersRepository.findUsersByChatId(message.getChatId())
+                        .orElseThrow(NotFoundException::new);
+                user.setPhoneNumber(message.getText());
+                usersRepository.save(user);
+                execute(SendMessage.builder()
+                        .text("Введите пожалуйста адрес Вашей электронной почты.")
+                        .chatId(message.getChatId()).build());
+            } else if (message.getText().contains("@")) {
+                Users user = usersRepository.findUsersByChatId(message.getChatId())
+                        .orElseThrow(NotFoundException::new);
+                user.setEmailAddress(message.getText());
+                usersRepository.save(user);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text("Спасибо. Выберете дальнейшее действие.")
+                        .chatId(message.getChatId())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                                .build());
+            }
         }
     }
 
@@ -119,17 +187,18 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                     .build());
 
             case "WORKING" -> {
-                Info info = infoService.getInfo(1l);
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
                 execute(SendMessage.builder()
                         .text(info.getWorkMode() + "\n"
                                 + info.getAddress() + "\n"
                                 + info.getContacts())
                         .chatId(message.getChatId().toString())
-//                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
                         .build());
 
                 File file = File.createTempFile("location", "jpg");
-                try (FileOutputStream fileOutputStream = new FileOutputStream(file)){
+                try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
                     fileOutputStream.write(info.getLocation());
                 }
                 InputFile inputFile = new InputFile(file);
@@ -140,16 +209,18 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             }
 
             case "SAFETY" -> {
-                Info info = infoService.getInfo(1l);
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
                 execute(SendMessage.builder()
                         .text(info.getSafetyPrecautions())
                         .chatId(message.getChatId().toString())
-//                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
                         .build());
             }
 
             case "CONTACT" -> execute(SendMessage.builder()
-                    .text("Контактные данные")
+                    .text("Введите номер Вашего телефона в формате: \n" +
+                            MessagesForUsers.FORMAT_PHONE_NUMBER)
                     .chatId(message.getChatId().toString())
 //                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
                     .build());
@@ -157,14 +228,131 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             case "ARRANGEMENT" -> processingArrangementMenu(message);
 
             case "CHOOSING" -> choosingOfPet(message);
+            case "START" -> processingStartMenu(message);
+            case "RULES" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getDatingRules())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+            case "DOCUMENTS" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getListOfDocuments())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+            case "TRANSPORTATION" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getAdviceForTransporting())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
 
-            case "TAKING" -> takingPet(message);
+            case "ADVICE" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getTipsOfDogHandler())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+            case "CYNOLOGIST" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getListOfDogHandler())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+            case "REFUSAL" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getReasonsForRefusal())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+
+            case "PUPPIES" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getAdviceForHomeForPuppy())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+            case "DOG_ADULT" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getAdviceForHomeForAdultDog())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+            case "DOG_LIMITED" -> {
+                Info info = infoService.getInfo(1L);
+                List<List<InlineKeyboardButton>> buttons = getButtons();
+                execute(SendMessage.builder()
+                        .text(info.getAdviceForHomeForDogWithDisability())
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                        .build());
+            }
+//            case "KITTENS" -> {
+//            }
+//            case "CAT_ADULT" -> {
+//            }
+//            case "CAT_LIMITED" -> {
+//            }
+
+//            case "TAKING.\*" -> takingPet(message);
         }
     }
 
+    @Nullable
+    private LocalDateTime parseDateTime(String dateTime) {
+        try {
+            return LocalDateTime.parse(dateTime, DateTimeFormatter
+                    .ofPattern("dd.MM.yyyy HH:mm"));
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    private static List<List<InlineKeyboardButton>> getButtons() {
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+
+        buttons.add(Collections.singletonList(
+                InlineKeyboardButton.builder()
+                        .text("Перейти к стартовому меню")
+                        .callbackData("START")
+                        .build()));
+        buttons.add(Collections.singletonList(
+                InlineKeyboardButton.builder()
+                        .text(StartMenuEnum.CHOOSING.getInfo())
+                        .callbackData(StartMenuEnum.CHOOSING.name())
+                        .build()));
+        return buttons;
+    }
+
     private void takingPet(Message message) throws TelegramApiException {
-        if (usersRepository.findUsersByChatId(message.getChatId()).get()
-                .getPhoneNumber() == null) {
+        Users user = usersRepository.findUsersByChatId(message.getChatId())
+                .orElseThrow(NotFoundException::new);
+        if (user.getPhoneNumber() == null) {
             List<List<InlineKeyboardButton>> button = new ArrayList<>();
             button.add(Collections.singletonList(
                     InlineKeyboardButton.builder()
@@ -179,15 +367,14 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
         } else {
             Info info = infoService.getInfo(1L);
             execute(SendMessage.builder().text(MessagesForUsers.MESSAGE_FOR_NEW_TUTOR +
-                    "\n" + info.getWorkMode() + "по адресу: " +
-                    info.getAddress() + "\n\n Введите пожалуйста дату и время, " +
-                    "когда Вы сможете посетить наш приют, в формате: \n\n" +
-                    MessagesForUsers.FORMAT_DATE_TIME)
+                            "\n" + info.getWorkMode() + "по адресу: " +
+                            info.getAddress() +
+                            "\n\n Введите пожалуйста дату и время, " +
+                            "когда Вы сможете посетить наш приют, в формате: \n" +
+                            MessagesForUsers.FORMAT_DATE_TIME)
                     .chatId(message.getChatId())
                     .build());
         }
-
-
     }
 
     private void choosingOfPet(Message message) throws TelegramApiException,
@@ -195,16 +382,17 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
         List<Pet> petList = petService.getPetsByTypeOfAnimal(AnimalType.DOG);
         for (Pet pet : petList) {
             List<Avatar> avatars = avatarService.getAvatarsByPetId(pet.getId());
+
             File image = ResourceUtils.getFile(avatars.get(0).getFilePath());
             InputFile inputFile = new InputFile(image, image.getName());
 
-            List<List<InlineKeyboardButton>> button = new ArrayList<>();
-            button.add(Collections.singletonList(
-                    InlineKeyboardButton.builder()
-                            .text("Выбрать этого питомца")
-                            .callbackData("TAKING")
-                            .build())
-            );
+//            List<List<InlineKeyboardButton>> button = new ArrayList<>();
+//            button.add(Collections.singletonList(
+//                    InlineKeyboardButton.builder()
+//                            .text("Выбрать этого питомца")
+//                            .callbackData("TAKING" + ". idOfPet = " + pet.getId())
+//                            .build())
+//            );
 
             execute(SendMessage.builder()
                     .text("id: " + pet.getId() + "\nИмя: " + pet.getName()
@@ -215,11 +403,16 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             execute(SendPhoto.builder()
                     .photo(inputFile)
                     .chatId(message.getChatId().toString())
-                    .replyMarkup(InlineKeyboardMarkup.builder().
-                            keyboard(button).build())
+//                    .replyMarkup(InlineKeyboardMarkup.builder().
+//                            keyboard(button).build())
                     .build());
 
         }
+
+        execute(SendMessage.builder()
+                .text("Если Вы выбрали питомца, то введите его id.")
+                .chatId(message.getChatId()).build());
+
     }
 
     private void processingArrangementMenu(Message message) throws TelegramApiException {
@@ -311,6 +504,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             Users newUser = new Users();
             newUser.setUserName(caller.getFirstName());
             newUser.setChatId(message.getChatId());
+            newUser.setRole(UserType.USER);
             usersRepository.save(newUser);
         }
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();

@@ -18,22 +18,23 @@ public class Pet {
 
     private String name;
 
-    @OneToOne
-    private Users usersId;
-
     @Enumerated(EnumType.STRING)
     private AnimalType typeOfAnimal;
 
     private int age;
 
+    @OneToOne
+    private Users users;
+
     public Pet() {
     }
 
-    public Pet(Long id, String name, AnimalType typeOfAnimal, int age) {
+    public Pet(Long id, String name, AnimalType typeOfAnimal, int age, Users users) {
         this.id = id;
         this.name = name;
         this.typeOfAnimal = typeOfAnimal;
         this.age = age;
+        this.users = users;
     }
 
     public Long getId() {
@@ -68,12 +69,22 @@ public class Pet {
         this.age = age;
     }
 
+    public Users getUsers() {
+        return users;
+    }
+
+    public void setUsers(Users users) {
+        this.users = users;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Pet pet = (Pet) o;
-        return age == pet.age && Objects.equals(id, pet.id) && Objects.equals(name, pet.name) && typeOfAnimal == pet.typeOfAnimal;
+        return age == pet.age && Objects.equals(id, pet.id)
+                && Objects.equals(name, pet.name)
+                && typeOfAnimal == pet.typeOfAnimal;
     }
 
     @Override
@@ -84,10 +95,11 @@ public class Pet {
     @Override
     public String toString() {
         return "Pet{" +
-               "id=" + id +
-               ", name='" + name + '\'' +
-               ", typeOfAnimal=" + typeOfAnimal +
-               ", age=" + age +
-               '}';
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", typeOfAnimal=" + typeOfAnimal +
+                ", age=" + age +
+                ", users=" + users +
+                '}';
     }
 }
