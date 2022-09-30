@@ -198,9 +198,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
             case "CONTACT" -> execute(SendMessage.builder()
                     .text("Введите номер Вашего телефона в формате: \n" +
-                            MessagesForUsers.FORMAT_PHONE_NUMBER)
+                          MessagesForUsers.FORMAT_PHONE_NUMBER)
                     .chatId(message.getChatId().toString())
-//                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                    .replyMarkup(InlineKeyboardMarkup.builder().keyboard(getStartButton()).build())
                     .build());
 
             case "ARRANGEMENT" -> processingArrangementMenu(message);
