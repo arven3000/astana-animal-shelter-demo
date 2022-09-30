@@ -20,6 +20,6 @@ public class PetService {
     }
 
     public Pet getPetByPetId(Long petId) {
-        return petRepository.findById(petId).orElseThrow();
+        return petRepository.findById(petId).orElse(null);
     }
 }
