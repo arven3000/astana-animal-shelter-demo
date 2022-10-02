@@ -6,6 +6,7 @@ import com.aas.astanaanimalshelterdemo.botRepositories.PetRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PetService {
@@ -19,7 +20,16 @@ public class PetService {
         return petRepository.findPetsByTypeOfAnimal(typeOfAnimal);
     }
 
-    public Pet getPetByPetId(Long petId) {
-        return petRepository.findById(petId).orElse(null);
+    public Optional<Pet> getPetByPetId(Long petId) {
+        return petRepository.findById(petId);
     }
+
+    public Optional<Pet> getPetByUserId(Long userId) {
+        return petRepository.findByUsersId(userId);
+    }
+
+    public Pet save(Pet pet) {
+        return petRepository.save(pet);
+    }
+
 }
