@@ -513,9 +513,21 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     private void checkedExit(Message message, AnimalType type) throws TelegramApiException {
         if (type == AnimalType.DOG) {
-            dogUsersService.getUserByChatId(message.getChatId()).ifPresent(dogUsersService::delete);
+            if (dogUsersService.getUserByChatId(message.getChatId()).isPresent()) {
+                dogUsersService.getUserByChatId(message.getChatId()).ifPresent(dogUser -> {
+                    if (dogUser.getRole() == UserType.USER) {
+                        dogUsersService.delete(dogUser);
+                    }
+                });
+            }
         } else {
-            catUsersService.getUserByChatId(message.getChatId()).ifPresent(catUsersService::delete);
+            if (catUsersService.getUserByChatId(message.getChatId()).isPresent()) {
+                catUsersService.getUserByChatId(message.getChatId()).ifPresent(catUser -> {
+                    if (catUser.getRole() == UserType.USER) {
+                        catUsersService.delete(catUser);
+                    }
+                });
+            }
         }
         processingMenu(message);
     }
