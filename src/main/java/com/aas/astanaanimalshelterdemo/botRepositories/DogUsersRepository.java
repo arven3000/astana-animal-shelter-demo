@@ -1,6 +1,5 @@
 package com.aas.astanaanimalshelterdemo.botRepositories;
 
-import com.aas.astanaanimalshelterdemo.botModel.CatUsers;
 import com.aas.astanaanimalshelterdemo.botModel.DogUsers;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
