@@ -26,4 +26,9 @@ public class DogUsersService {
     public void delete(DogUsers user) {
         dogUsersRepository.delete(user);
     }
+
+    public Optional<DogUsers> getUserById(Long chatId) {
+        return dogUsersRepository.findById(chatId);
+    }
+
 }

@@ -109,20 +109,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             if ("/start".equals(message.getText())) {
                 chooseMenu(message, type);
             } else if (message.getText().startsWith("Рацион питания")) {
-                Report report = new Report();
-                Users user = usersService.getUsersByChatId(message.getChatId())
-                        .orElseThrow(NotFoundException::new);
-                Pet pet = petService.getPetByUsers(user)
-                        .orElseThrow(NotFoundException::new);
-                report.setDataTime(LocalDateTime.now());
-                report.setUser(user);
-                report.setPet(pet);
-                report.setDiet(message.getText());
-                reportService.save(report);
-                execute(SendMessage.builder()
-                        .text("Опишите пожалуйста общее самочувствие питомца.\n" +
-                              "Начните со слов Общее самочувствие.")
-                        .chatId(message.getChatId()).build());
+                setPetDiet(message);
             } else if (message.getText().startsWith("Общее самочувствие")) {
                 Users user = usersService.getUsersByChatId(message.getChatId())
                         .orElseThrow(NotFoundException::new);
@@ -211,8 +198,26 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                   && report.getHabits() == null)) {
                 execute(SendMessage.builder().text("Ваш отчет принят.")
                         .chatId(message.getChatId()).build());
+                processingStartMenu(message, pet.getTypeOfAnimal());
             }
         }
+    }
+
+    private void setPetDiet(Message message) throws TelegramApiException {
+        Report report = new Report();
+        Users user = usersService.getUsersByChatId(message.getChatId())
+                .orElseThrow(NotFoundException::new);
+        Pet pet = petService.getPetByUsers(user)
+                .orElseThrow(NotFoundException::new);
+        report.setDataTime(LocalDateTime.now());
+        report.setUser(user);
+        report.setPet(pet);
+        report.setDiet(message.getText());
+        reportService.save(report);
+        execute(SendMessage.builder()
+                .text("Опишите пожалуйста общее самочувствие питомца.\n" +
+                      "Начните со слов Общее самочувствие.")
+                .chatId(message.getChatId()).build());
     }
 
     private void checkDate(Message message, AnimalType type) throws TelegramApiException {
@@ -333,21 +338,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             case "YES" -> checkedExit(message, type);
             case "NO", "INFORMATION" -> processingInfoMenu(message, type);
             case "TAKE" -> processingAdoptiveParentsMenu(message, type);
-            case "REPORT" -> {
-                execute(SendMessage.builder()
-                        .text("Вам необходимо описать рацион питания, общее самочувствие, " +
-                              "изменения в поведении и загрузить актуальную фотографию" +
-                              "Вашего питомца.")
-                        .chatId(message.getChatId().toString())
-//                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
-                        .build());
-                execute(SendMessage.builder()
-                        .text("Опишите пожалуйста рацион питания питомца.\n" +
-                              "Начните со слов Рацион питания.")
-                        .chatId(message.getChatId().toString())
-//                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
-                        .build());
-            }
+            case "REPORT" -> reportLoad(message, type);
             case "CALL" -> execute(SendMessage.builder()
                     .text("Вызов волонтера")
                     .chatId(message.getChatId().toString())
@@ -368,6 +359,33 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             case "DOG_ADULT", "CAT_ADULT" -> adviceForHomeForAdultPetLoad(message, type, infoId);
             case "DOG_LIMITED", "CAT_LIMITED" -> adviceForHomeForPetWithDisabilityLoad(message, type, infoId);
             case "TAKING" -> chooseTaking(message, petId, type);
+        }
+    }
+
+    private void reportLoad(Message message, AnimalType type) throws TelegramApiException {
+        if (dogUsersService.getUserByChatId(message.getChatId()).isPresent()
+            && dogUsersService.getUserByChatId(message.getChatId())
+                    .get().getRole().equals(UserType.OWNER)
+            || catUsersService.getUserByChatId(message.getChatId()).isPresent()
+               && catUsersService.getUserByChatId(message.getChatId())
+                       .get().getRole().equals(UserType.OWNER)) {
+            execute(SendMessage.builder()
+                    .text("Вам необходимо описать рацион питания, общее самочувствие, " +
+                          "изменения в поведении и загрузить актуальную фотографию" +
+                          "Вашего питомца.")
+                    .chatId(message.getChatId().toString())
+                    .build());
+            execute(SendMessage.builder()
+                    .text("Опишите пожалуйста рацион питания питомца.\n" +
+                          "Начните со слов Рацион питания.")
+                    .chatId(message.getChatId().toString())
+                    .build());
+        } else {
+            execute(SendMessage.builder()
+                    .text("У вас еще нет питомца!")
+                    .chatId(message.getChatId().toString())
+                    .build());
+            processingStartMenu(message, type);
         }
     }
 
@@ -414,9 +432,29 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     private void chooseTaking(Message message, Long petId, AnimalType type) throws TelegramApiException {
         if (type == AnimalType.DOG) {
-            takingDog(message, type, petId);
+            if (catUsersService.getUserByChatId(message.getChatId()).isEmpty()
+                && dogUsersService.getUserByChatId(message.getChatId()).isEmpty()) {
+                takingDog(message, type, petId);
+            } else {
+                execute(SendMessage.builder()
+                        .text("У вас уже есть животное. Приходите через 30 дней")
+                        .chatId(message.getChatId())
+                        .replyMarkup(InlineKeyboardMarkup.builder()
+                                .keyboard(getStartButton(type)).build())
+                        .build());
+            }
         } else {
-            takingCat(message, type, petId);
+            if (dogUsersService.getUserByChatId(message.getChatId()).isEmpty()
+                && catUsersService.getUserByChatId(message.getChatId()).isEmpty()) {
+                takingCat(message, type, petId);
+            } else {
+                execute(SendMessage.builder()
+                        .text("У вас уже есть животное. Приходите через 30 дней")
+                        .chatId(message.getChatId())
+                        .replyMarkup(InlineKeyboardMarkup.builder()
+                                .keyboard(getStartButton(type)).build())
+                        .build());
+            }
         }
     }
 
@@ -864,17 +902,77 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
     public void sendNotification() throws TelegramApiException {
         List<Users> usersWithPet = usersService.getUsersWithPet();
         for (Users user : usersWithPet) {
+            dogUsersService.getUserById(user.getId()).ifPresent(dogUsers -> {
+                if (dogUsers.getRole().equals(UserType.OWNER)
+                    && reportService.getReportsByUser(dogUsers).isEmpty()) {
+                    try {
+                        execute(SendMessage.builder()
+                                .text("Вы сегодня не прислали отчет о питомце "
+                                      + dogUsers.getPet().getName() + ".\n" +
+                                      "Настоятельно рекомендуем Вам срочно прислать отчет.")
+                                .chatId(user.getChatId())
+                                .replyMarkup(InlineKeyboardMarkup.builder().keyboard(Collections.singletonList(
+                                        Collections.singletonList(
+                                                InlineKeyboardButton.builder()
+                                                        .text(StartMenuEnum.REPORT.getInfo())
+                                                        .callbackData(StartMenuEnum.REPORT.name() + ":" +
+                                                                      AnimalType.DOG.name())
+                                                        .build())
+                                )).build())
+                                .build());
+
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+            });
+            catUsersService.getUserById(user.getId()).ifPresent(catUsers -> {
+                if (catUsers.getRole().equals(UserType.OWNER)
+                    && reportService.getReportsByUser(catUsers).isEmpty()) {
+                    try {
+                        execute(SendMessage.builder()
+                                .text("Вы сегодня не прислали отчет о питомце "
+                                      + catUsers.getPet().getName() + ".\n" +
+                                      "Настоятельно рекомендуем Вам срочно прислать отчет.")
+                                .chatId(user.getChatId())
+                                .replyMarkup(InlineKeyboardMarkup.builder().keyboard(Collections.singletonList(
+                                        Collections.singletonList(
+                                                InlineKeyboardButton.builder()
+                                                        .text(StartMenuEnum.REPORT.getInfo())
+                                                        .callbackData(StartMenuEnum.REPORT.name() + ":" +
+                                                                      AnimalType.CAT.name())
+                                                        .build())
+                                )).build())
+                                .build());
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
             List<Report> reports = reportService.getReportsByUser(user);
-            Report lastReport = reports.stream()
-                    .max(Comparator.comparing(Report::getId))
-                    .orElseThrow(NotFoundException::new);
-            if ((lastReport == null) ||
-                (!(lastReport.getDataTime().toLocalDate().equals(LocalDate.now())                    )
-                 && reports.size() < 30)) {
-                execute(SendMessage.builder()
-                        .text("Вы сегодня не прислали отчет о питомце. \n" +
-                              "Настоятельно рекомендуем Вам срочно прислать отчет.")
-                        .chatId(user.getChatId()).build());
+            if (!reports.isEmpty()) {
+                Report lastReport = reports.stream()
+                        .max(Comparator.comparing(Report::getId))
+                        .orElseThrow(NotFoundException::new);
+                if (!(lastReport.getDataTime().toLocalDate().equals(LocalDate.now())
+                      && reports.size() < 30)) {
+                    execute(SendMessage.builder()
+                            .text("Вы сегодня не прислали отчет о питомце " +
+                                  lastReport.getPetId().getName() + ".\n" +
+                                  "Настоятельно рекомендуем Вам срочно прислать отчет.")
+                            .chatId(user.getChatId())
+                            .replyMarkup(InlineKeyboardMarkup.builder().keyboard(Collections.singletonList(
+                                    Collections.singletonList(
+                                            InlineKeyboardButton.builder()
+                                                    .text(StartMenuEnum.REPORT.getInfo())
+                                                    .callbackData(StartMenuEnum.REPORT.name() + ":" +
+                                                                  lastReport.getPetId()
+                                                                          .getTypeOfAnimal().name())
+                                                    .build())
+                            )).build())
+                            .build());
+                }
             }
         }
     }

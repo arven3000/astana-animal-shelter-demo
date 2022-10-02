@@ -25,4 +25,8 @@ public class CatUsersService {
     public void delete(CatUsers user) {
         catUsersRepository.delete(user);
     }
+
+    public Optional<CatUsers> getUserById(Long chatId) {
+        return catUsersRepository.findById(chatId);
+    }
 }
