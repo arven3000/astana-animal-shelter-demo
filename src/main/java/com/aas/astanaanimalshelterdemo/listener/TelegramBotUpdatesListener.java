@@ -431,30 +431,24 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
     }
 
     private void chooseTaking(Message message, Long petId, AnimalType type) throws TelegramApiException {
-        if (type == AnimalType.DOG) {
-            if (catUsersService.getUserByChatId(message.getChatId()).isEmpty()
-                && dogUsersService.getUserByChatId(message.getChatId()).isEmpty()) {
+        if (catUsersService.getUserByChatId(message.getChatId()).isEmpty()
+            && dogUsersService.getUserByChatId(message.getChatId()).isEmpty()
+        || catUsersService.getUserByChatId(message.getChatId()).isPresent()
+           && !catUsersService.getUserByChatId(message.getChatId()).get().getRole().equals(UserType.OWNER)
+        ||  dogUsersService.getUserByChatId(message.getChatId()).isPresent()
+            && !dogUsersService.getUserByChatId(message.getChatId()).get().getRole().equals(UserType.OWNER)) {
+            if (type == AnimalType.DOG) {
                 takingDog(message, type, petId);
             } else {
-                execute(SendMessage.builder()
-                        .text("У вас уже есть животное. Приходите через 30 дней")
-                        .chatId(message.getChatId())
-                        .replyMarkup(InlineKeyboardMarkup.builder()
-                                .keyboard(getStartButton(type)).build())
-                        .build());
-            }
-        } else {
-            if (dogUsersService.getUserByChatId(message.getChatId()).isEmpty()
-                && catUsersService.getUserByChatId(message.getChatId()).isEmpty()) {
                 takingCat(message, type, petId);
-            } else {
-                execute(SendMessage.builder()
-                        .text("У вас уже есть животное. Приходите через 30 дней")
-                        .chatId(message.getChatId())
-                        .replyMarkup(InlineKeyboardMarkup.builder()
-                                .keyboard(getStartButton(type)).build())
-                        .build());
             }
+        } else  {
+            execute(SendMessage.builder()
+                    .text("У вас уже есть животное. Приходите через 30 дней")
+                    .chatId(message.getChatId())
+                    .replyMarkup(InlineKeyboardMarkup.builder()
+                            .keyboard(getStartButton(type)).build())
+                    .build());
         }
     }
 
