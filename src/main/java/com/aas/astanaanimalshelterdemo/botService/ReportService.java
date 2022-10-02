@@ -18,4 +18,12 @@ public class ReportService {
     public List<Report> getReportsByUser(Users user) {
         return reportRepository.findReportsByUser(user);
     }
+
+    public Report save(Report report) {
+        return reportRepository.save(report);
+    }
+
+    public void delete(Report report) {
+        reportRepository.delete(report);
+    }
 }

@@ -47,13 +47,13 @@ public class Info {
     private String adviceForTransporting;
 
     //Рекомендации по обустройству дома для щенка.
-    private String adviceForHomeForPuppy;
+    private String adviceForHomeForBaby;
 
     //Рекомендации по обустройству дома для взрослой собаки.
-    private String adviceForHomeForAdultDog;
+    private String adviceForHomeForAdultPet;
 
     //Рекомендации по обустройству дома для собаки с ограниченными возможностями.
-    private String adviceForHomeForDogWithDisability;
+    private String adviceForHomeForPetWithDisability;
 
     //Тип файла со схемой проезда.
     private String mediaType;
@@ -70,8 +70,8 @@ public class Info {
                 String contacts, String safetyPrecautions, String datingRules,
                 String tipsOfDogHandler, String listOfDogHandler,
                 String reasonsForRefusal, String listOfDocuments,
-                String adviceForTransporting, String adviceForHomeForPuppy,
-                String adviceForHomeForAdultDog, String adviceForHomeForDogWithDisability,
+                String adviceForTransporting, String adviceForHomeForBaby,
+                String adviceForHomeForAdultPet, String adviceForHomeForPetWithDisability,
                 String mediaType, byte[] location) {
         this.id = id;
         this.aboutShelter = aboutShelter;
@@ -85,9 +85,9 @@ public class Info {
         this.reasonsForRefusal = reasonsForRefusal;
         this.listOfDocuments = listOfDocuments;
         this.adviceForTransporting = adviceForTransporting;
-        this.adviceForHomeForPuppy = adviceForHomeForPuppy;
-        this.adviceForHomeForAdultDog = adviceForHomeForAdultDog;
-        this.adviceForHomeForDogWithDisability = adviceForHomeForDogWithDisability;
+        this.adviceForHomeForBaby = adviceForHomeForBaby;
+        this.adviceForHomeForAdultPet = adviceForHomeForAdultPet;
+        this.adviceForHomeForPetWithDisability = adviceForHomeForPetWithDisability;
         this.mediaType = mediaType;
         this.location = location;
     }
@@ -188,28 +188,28 @@ public class Info {
         this.adviceForTransporting = reccomendForTranspoting;
     }
 
-    public String getAdviceForHomeForPuppy() {
-        return adviceForHomeForPuppy;
+    public String getAdviceForHomeForBaby() {
+        return adviceForHomeForBaby;
     }
 
-    public void setAdviceForHomeForPuppy(String reccomendForHomeForPuppy) {
-        this.adviceForHomeForPuppy = reccomendForHomeForPuppy;
+    public void setAdviceForHomeForBaby(String reccomendForHomeForPuppy) {
+        this.adviceForHomeForBaby = reccomendForHomeForPuppy;
     }
 
-    public String getAdviceForHomeForAdultDog() {
-        return adviceForHomeForAdultDog;
+    public String getAdviceForHomeForAdultPet() {
+        return adviceForHomeForAdultPet;
     }
 
-    public void setAdviceForHomeForAdultDog(String reccomendForHomeForAdultDog) {
-        this.adviceForHomeForAdultDog = reccomendForHomeForAdultDog;
+    public void setAdviceForHomeForAdultPet(String reccomendForHomeForAdultDog) {
+        this.adviceForHomeForAdultPet = reccomendForHomeForAdultDog;
     }
 
-    public String getAdviceForHomeForDogWithDisability() {
-        return adviceForHomeForDogWithDisability;
+    public String getAdviceForHomeForPetWithDisability() {
+        return adviceForHomeForPetWithDisability;
     }
 
-    public void setAdviceForHomeForDogWithDisability(String reccomendForHomeForDogWithDisability) {
-        this.adviceForHomeForDogWithDisability = reccomendForHomeForDogWithDisability;
+    public void setAdviceForHomeForPetWithDisability(String reccomendForHomeForDogWithDisability) {
+        this.adviceForHomeForPetWithDisability = reccomendForHomeForDogWithDisability;
     }
 
     public String getMediaType() {
@@ -234,24 +234,24 @@ public class Info {
         if (o == null || getClass() != o.getClass()) return false;
         Info info = (Info) o;
         return Objects.equals(id, info.id) && Objects.equals(aboutShelter, info.aboutShelter) &&
-                Objects.equals(workMode, info.workMode) && Objects.equals(address, info.address) &&
-                Objects.equals(contacts, info.contacts) && Objects.equals(safetyPrecautions,
+               Objects.equals(workMode, info.workMode) && Objects.equals(address, info.address) &&
+               Objects.equals(contacts, info.contacts) && Objects.equals(safetyPrecautions,
                 info.safetyPrecautions) && Objects.equals(datingRules, info.datingRules) &&
-                Objects.equals(tipsOfDogHandler, info.tipsOfDogHandler) && Objects.equals(listOfDogHandler,
+               Objects.equals(tipsOfDogHandler, info.tipsOfDogHandler) && Objects.equals(listOfDogHandler,
                 info.listOfDogHandler) && Objects.equals(reasonsForRefusal, info.reasonsForRefusal) &&
-                Objects.equals(listOfDocuments, info.listOfDocuments) && Objects.equals(adviceForTransporting,
-                info.adviceForTransporting) && Objects.equals(adviceForHomeForPuppy,
-                info.adviceForHomeForPuppy) && Objects.equals(adviceForHomeForAdultDog,
-                info.adviceForHomeForAdultDog) && Objects.equals(adviceForHomeForDogWithDisability,
-                info.adviceForHomeForDogWithDisability) && Arrays.equals(location, info.location);
+               Objects.equals(listOfDocuments, info.listOfDocuments) && Objects.equals(adviceForTransporting,
+                info.adviceForTransporting) && Objects.equals(adviceForHomeForBaby,
+                info.adviceForHomeForBaby) && Objects.equals(adviceForHomeForAdultPet,
+                info.adviceForHomeForAdultPet) && Objects.equals(adviceForHomeForPetWithDisability,
+                info.adviceForHomeForPetWithDisability) && Arrays.equals(location, info.location);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(id, aboutShelter, workMode, address, contacts, safetyPrecautions,
                 datingRules, tipsOfDogHandler, listOfDogHandler, reasonsForRefusal, listOfDocuments,
-                adviceForTransporting, adviceForHomeForPuppy, adviceForHomeForAdultDog,
-                adviceForHomeForDogWithDisability);
+                adviceForTransporting, adviceForHomeForBaby, adviceForHomeForAdultPet,
+                adviceForHomeForPetWithDisability);
         result = 31 * result + Arrays.hashCode(location);
         return result;
     }
@@ -259,22 +259,22 @@ public class Info {
     @Override
     public String toString() {
         return "Info{" +
-                "id=" + id +
-                ", aboutShelter='" + aboutShelter + '\'' +
-                ", workMode='" + workMode + '\'' +
-                ", address='" + address + '\'' +
-                ", contacts='" + contacts + '\'' +
-                ", safetyPrecautions='" + safetyPrecautions + '\'' +
-                ", datingRules='" + datingRules + '\'' +
-                ", tipsOfDogHandler='" + tipsOfDogHandler + '\'' +
-                ", listOfDogHandler='" + listOfDogHandler + '\'' +
-                ", reasonsForRefusal='" + reasonsForRefusal + '\'' +
-                ", listOfDocuments='" + listOfDocuments + '\'' +
-                ", adviceForTransporting='" + adviceForTransporting + '\'' +
-                ", adviceForHomeForPuppy='" + adviceForHomeForPuppy + '\'' +
-                ", adviceForHomeForAdultDog='" + adviceForHomeForAdultDog + '\'' +
-                ", adviceForHomeForDogWithDisability='" + adviceForHomeForDogWithDisability + '\'' +
-                ", location=" + Arrays.toString(location) +
-                '}';
+               "id=" + id +
+               ", aboutShelter='" + aboutShelter + '\'' +
+               ", workMode='" + workMode + '\'' +
+               ", address='" + address + '\'' +
+               ", contacts='" + contacts + '\'' +
+               ", safetyPrecautions='" + safetyPrecautions + '\'' +
+               ", datingRules='" + datingRules + '\'' +
+               ", tipsOfDogHandler='" + tipsOfDogHandler + '\'' +
+               ", listOfDogHandler='" + listOfDogHandler + '\'' +
+               ", reasonsForRefusal='" + reasonsForRefusal + '\'' +
+               ", listOfDocuments='" + listOfDocuments + '\'' +
+               ", adviceForTransporting='" + adviceForTransporting + '\'' +
+               ", adviceForHomeForPuppy='" + adviceForHomeForBaby + '\'' +
+               ", adviceForHomeForAdultDog='" + adviceForHomeForAdultPet + '\'' +
+               ", adviceForHomeForDogWithDisability='" + adviceForHomeForPetWithDisability + '\'' +
+               ", location=" + Arrays.toString(location) +
+               '}';
     }
 }
