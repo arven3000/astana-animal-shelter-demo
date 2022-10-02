@@ -1,16 +1,21 @@
 package com.aas.astanaanimalshelterdemo.botModel;
 
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.Collection;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Table;
 import java.util.Objects;
 
-@Entity
-public class Users {
 
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "users")
+@DiscriminatorColumn(name = "user_type")
+public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,27 +23,6 @@ public class Users {
     private String userName;
     private String phoneNumber;
     private String emailAddress;
-
-    private LocalDateTime dataTimeOfPet;
-
-    @Enumerated(EnumType.STRING)
-    private UserType role;
-
-    @OneToOne
-    private Pet pet;
-
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "user")
-//    private Collection<Report> reports;
-
-    public Users(Long id, Long chatId, String userName, String phoneNumber, String emailAddress, LocalDateTime dataTimeOfPet) {
-        this.id = id;
-        this.chatId = chatId;
-        this.userName = userName;
-        this.phoneNumber = phoneNumber;
-        this.emailAddress = emailAddress;
-        this.dataTimeOfPet = dataTimeOfPet;
-    }
 
     public Users() {
 
@@ -64,10 +48,6 @@ public class Users {
         return userName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -84,28 +64,9 @@ public class Users {
         this.emailAddress = emailAddress;
     }
 
-    public LocalDateTime getDataTimeOfPet() {
-        return dataTimeOfPet;
-    }
 
-    public void setDataTimeOfPet(LocalDateTime dataTimeOfPet) {
-        this.dataTimeOfPet = dataTimeOfPet;
-    }
-
-    public UserType getRole() {
-        return role;
-    }
-
-    public void setRole(UserType role) {
-        this.role = role;
-    }
-
-    public Pet getPet() {
-        return pet;
-    }
-
-    public void setPet(Pet pet) {
-        this.pet = pet;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     @Override
@@ -114,28 +75,23 @@ public class Users {
         if (o == null || getClass() != o.getClass()) return false;
         Users users = (Users) o;
         return Objects.equals(id, users.id) && Objects.equals(chatId, users.chatId)
-                && Objects.equals(userName, users.userName)
-                && Objects.equals(phoneNumber, users.phoneNumber)
-                && Objects.equals(emailAddress, users.emailAddress);
+               && Objects.equals(userName, users.userName) && Objects.equals(phoneNumber, users.phoneNumber)
+               && Objects.equals(emailAddress, users.emailAddress);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, chatId, userName, phoneNumber,
-                emailAddress);
+        return Objects.hash(id, chatId, userName, phoneNumber, emailAddress);
     }
 
     @Override
     public String toString() {
         return "Users{" +
-                "id=" + id +
-                ", chatId=" + chatId +
-                ", userName='" + userName + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", emailAddress='" + emailAddress + '\'' +
-                ", dataTimeOfPet=" + dataTimeOfPet +
-                ", role=" + role +
-                ", pet=" + pet +
-                '}';
+               "id=" + id +
+               ", chatId=" + chatId +
+               ", userName='" + userName + '\'' +
+               ", phoneNumber='" + phoneNumber + '\'' +
+               ", emailAddress='" + emailAddress + '\'' +
+               '}';
     }
 }

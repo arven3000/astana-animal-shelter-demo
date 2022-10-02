@@ -2,6 +2,7 @@ package com.aas.astanaanimalshelterdemo.botService;
 
 import com.aas.astanaanimalshelterdemo.botModel.Avatar;
 import com.aas.astanaanimalshelterdemo.botModel.Pet;
+import com.aas.astanaanimalshelterdemo.botModel.Report;
 import com.aas.astanaanimalshelterdemo.botRepositories.AvatarRepository;
 import com.aas.astanaanimalshelterdemo.botRepositories.PetRepository;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -115,5 +116,13 @@ public class AvatarService {
     public List<Avatar> getAvatarsByPetId(Long petId) {
         Pet pet = petRepository.findById(petId).orElseThrow(NotFoundException::new);
         return avatarRepository.findAvatarByPet(pet);
+    }
+
+    public Avatar save(Avatar avatar) {
+        return avatarRepository.save(avatar);
+    }
+
+    public void delete(Avatar avatar) {
+        avatarRepository.delete(avatar);
     }
 }
