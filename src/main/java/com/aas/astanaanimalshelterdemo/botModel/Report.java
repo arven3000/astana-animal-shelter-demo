@@ -45,7 +45,7 @@ public class Report {
     private String habits;
 
     /**
-     * Дата отчетов
+     * Дата отчета
      */
     private LocalDateTime dataTime;
 
@@ -84,7 +84,7 @@ public class Report {
         return petId;
     }
 
-    public void setPetId(Pet pet) {
+    public void setPet(Pet pet) {
         this.petId = pet;
     }
 
