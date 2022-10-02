@@ -80,7 +80,6 @@ public class DogUsers extends Users {
                "id=" + id +
                ", dataTimeOfPet=" + dataTimeOfPet +
                ", role=" + role +
-               ", pet=" + pet +
                '}';
     }
 }
