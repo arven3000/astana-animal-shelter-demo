@@ -21,6 +21,10 @@ public class PetService {
         return petRepository.findPetsByTypeOfAnimal(typeOfAnimal);
     }
 
+    public List<Pet> getPetsByTypeOfAnimalAndUsersNull(AnimalType typeOfAnimal) {
+        return petRepository.findPetsByTypeAndNullUser(typeOfAnimal);
+    }
+
     public Optional<Pet> getPetByPetId(Long petId) {
         return petRepository.findById(petId);
     }
