@@ -697,7 +697,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     private void choosingOfPet(Message message, AnimalType type) throws TelegramApiException,
             FileNotFoundException {
-        List<Pet> petList = petService.getPetsByTypeOfAnimal(type);
+        List<Pet> petList = petService.getPetsByTypeOfAnimalAndUsersNull(type);
         for (Pet pet : petList) {
             List<Avatar> avatars = avatarService.getAvatarsByPetId(pet.getId());
             File image = ResourceUtils.getFile(avatars.get(0).getFilePath());
