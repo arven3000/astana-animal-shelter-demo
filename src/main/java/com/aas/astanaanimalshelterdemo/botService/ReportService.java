@@ -15,14 +15,28 @@ public class ReportService {
         this.reportRepository = reportRepository;
     }
 
+    /**
+     * Поиск отчета по пользователю
+     * @param user
+     * @return List<Report>
+     */
     public List<Report> getReportsByUser(Users user) {
         return reportRepository.findReportsByUser(user);
     }
 
+    /**
+     * Сохранение отчета
+     * @param report
+     * @return Report
+     */
     public Report save(Report report) {
         return reportRepository.save(report);
     }
 
+    /**
+     * Удаление отчета
+     * @param report
+     */
     public void delete(Report report) {
         reportRepository.delete(report);
     }

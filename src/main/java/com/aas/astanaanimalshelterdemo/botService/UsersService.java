@@ -25,18 +25,36 @@ public class UsersService {
         this.catUsersRepository = catUsersRepository;
     }
 
+    /**
+     * Сохранение пользователя
+     * @param user
+     * @return Users
+     */
     public Users save(Users user) {
         return usersRepository.save(user);
     }
 
+    /**
+     * Удаление пользователя
+     * @param user
+     */
     public void delete(Users user) {
         usersRepository.delete(user);
     }
 
+    /**
+     * Поиск пользователей по id чата
+     * @param chatId
+     * @return Optional<Users>
+     */
     public Optional<Users> getUsersByChatId(Long chatId) {
         return usersRepository.findUsersByChatId(chatId);
     }
 
+    /**
+     * Поиск пользователей с питомцами
+     * @return List<Users>
+     */
     public List<Users> getUsersWithPet() {
         List<Long> ids = dogUsersRepository.findAllIdWithPet();
         ids.addAll(catUsersRepository.findAllIdWithPet());

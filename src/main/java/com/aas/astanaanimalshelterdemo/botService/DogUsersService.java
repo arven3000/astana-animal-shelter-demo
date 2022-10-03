@@ -15,20 +15,39 @@ public class DogUsersService {
         this.dogUsersRepository = dogUsersRepository;
     }
 
+    /**
+     * Поиск владельца собак по id чата
+     * @param chatId
+     * @return Optional<DogUsers>
+     */
     public Optional<DogUsers> getUserByChatId(Long chatId) {
         return dogUsersRepository.findDogUsersByChatId(chatId);
     }
 
-    public DogUsers save(DogUsers user) {
-        return dogUsersRepository.save(user);
+    /**
+     * Сохранение владельца собаки
+     *
+     * @param user
+     */
+    public void save(DogUsers user) {
+        dogUsersRepository.save(user);
     }
 
+    /**
+     * Удаление владельца собаки
+     * @param user
+     */
     public void delete(DogUsers user) {
         dogUsersRepository.delete(user);
     }
 
-    public Optional<DogUsers> getUserById(Long chatId) {
-        return dogUsersRepository.findById(chatId);
+    /**
+     * Поиск владельца собак по id
+     * @param id
+     * @return Optional<DogUsers>
+     */
+    public Optional<DogUsers> getUserById(Long id) {
+        return dogUsersRepository.findById(id);
     }
 
 }

@@ -15,23 +15,37 @@ public class InfoService {
         this.infoRepository = infoRepository;
     }
 
-    //Добавление справочной информации нового приюта.
+    /**
+     * Добавление справочной информации нового приюта.
+     * @param info
+     */
     public void addInfo(Info info) {
         infoRepository.save(info);
     }
 
-    //Получение справочной информации приюта.
+    /**
+     * Получение справочной информации приюта.
+     * @param id
+     * @return Info
+     */
     public Info getInfo(Long id) {
         return infoRepository.findById(id).orElseThrow();
     }
 
-    //Удаление справочной информации приюта.
+    /**
+     * Удаление справочной информации приюта.
+     * @param id
+     */
     public void deleteInfo(Long id) {
         infoRepository.deleteById(id);
     }
 
-
-    //Загрузка схемы проезда к приюту.
+    /**
+     * Загрузка схемы проезда к приюту.
+     * @param infoId
+     * @param locationFile
+     * @throws IOException
+     */
     public void uploadLocation(Long infoId, MultipartFile locationFile) throws IOException {
         Info info = infoRepository.findById(infoId).orElseThrow();
         info.setLocation(locationFile.getBytes());

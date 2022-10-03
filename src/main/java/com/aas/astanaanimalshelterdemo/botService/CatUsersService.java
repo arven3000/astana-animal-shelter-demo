@@ -14,19 +14,37 @@ public class CatUsersService {
         this.catUsersRepository = catUsersRepository;
     }
 
+    /**
+     * Поиск владельца кошки по id чата
+     * @param chatId
+     * @return Optional<CatUsers>
+     */
     public Optional<CatUsers> getUserByChatId(Long chatId) {
         return catUsersRepository.findCatUsersByChatId(chatId);
     }
 
+    /**
+     * Сохранение владельца кошки
+     * @param user
+     */
     public CatUsers save(CatUsers user) {
         return catUsersRepository.save(user);
     }
 
+    /**
+     * Удаение владельца собаки
+     * @param user
+     */
     public void delete(CatUsers user) {
         catUsersRepository.delete(user);
     }
 
-    public Optional<CatUsers> getUserById(Long chatId) {
-        return catUsersRepository.findById(chatId);
+    /**
+     * Поиск владельца кошки по id
+     * @param id
+     * @return Optional<CatUsers>
+     */
+    public Optional<CatUsers> getUserById(Long id) {
+        return catUsersRepository.findById(id);
     }
 }
