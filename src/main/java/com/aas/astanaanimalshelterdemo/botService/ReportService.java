@@ -1,19 +1,21 @@
 package com.aas.astanaanimalshelterdemo.botService;
 
+import com.aas.astanaanimalshelterdemo.botModel.Report;
+import com.aas.astanaanimalshelterdemo.botModel.Users;
+import com.aas.astanaanimalshelterdemo.botRepositories.ReportRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.util.List;
 
 @Service
 public class ReportService {
-    private final AvatarService avatarService;
+    private final ReportRepository reportRepository;
 
-    public ReportService(AvatarService avatarService) {
-        this.avatarService = avatarService;
+    public ReportService(ReportRepository reportRepository) {
+        this.reportRepository = reportRepository;
     }
 
-    public void uploadPhotoFromUser(Long petId, MultipartFile file) throws IOException {
-        avatarService.upLoadAvatar(petId, file);
+    public List<Report> getReportsByUser(Users user) {
+        return reportRepository.findReportsByUser(user);
     }
 }
