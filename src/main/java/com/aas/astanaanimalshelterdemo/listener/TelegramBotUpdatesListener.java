@@ -149,9 +149,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                 checkDate(message, type);
             } else if (message.getText().matches(
                     "^((\\+7\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{2}[- .]?\\d{2}$")) {
-                checkedUserForPhone(message/*, type*/);
+                checkedUserForPhone(message, type);
             } else if (message.getText().matches("^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$")) {
-                checkedUserForEmail(message/*, type*/);
+                checkedUserForEmail(message, type);
             } else {
                 wrongMessage(message);
             }
@@ -286,17 +286,30 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
      * @param message - сообщение
      * @throws TelegramApiException - исключение TelegramApiException
      */
-    private void checkedUserForEmail(Message message) throws TelegramApiException {
-        usersService.getUsersByChatId(message.getChatId()).ifPresent(user -> {
-            user.setEmailAddress(message.getText());
-            usersService.save(user);
-        });
-        List<List<InlineKeyboardButton>> buttons = getStartButton(AnimalType.DOG);
+    private void checkedUserForEmail(Message message, AnimalType type) throws TelegramApiException {
+        if (type == AnimalType.DOG) {
+            List<List<InlineKeyboardButton>> buttons = getStartButton(AnimalType.DOG);
             execute(SendMessage.builder()
                     .text("Спасибо. Выберете дальнейшее действие.")
                     .chatId(message.getChatId())
                     .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
                     .build());
+            dogUsersService.getUserByChatId(message.getChatId()).ifPresent(user -> {
+                user.setEmailAddress(message.getText());
+                dogUsersService.save(user);
+            });
+        } else {
+            List<List<InlineKeyboardButton>> buttons = getStartButton(AnimalType.CAT);
+            execute(SendMessage.builder()
+                    .text("Спасибо. Выберете дальнейшее действие.")
+                    .chatId(message.getChatId())
+                    .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
+                    .build());
+            catUsersService.getUserByChatId(message.getChatId()).ifPresent(user -> {
+                user.setEmailAddress(message.getText());
+                catUsersService.save(user);
+            });
+        }
     }
 
     /**
@@ -304,14 +317,18 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
      * @param message - сообщение
      * @throws TelegramApiException - исключение TelegramApiException
      */
-    private void checkedUserForPhone(Message message) throws TelegramApiException {
-        usersService.getUsersByChatId(message.getChatId()).ifPresent(user -> {
-            user.setPhoneNumber(message.getText());
-            usersService.save(user);
-        });
-        execute(SendMessage.builder()
-                .text("Введите пожалуйста адрес Вашей электронной почты.")
-                .chatId(message.getChatId()).build());
+    private void checkedUserForPhone(Message message, AnimalType type) throws TelegramApiException {
+        if (type == AnimalType.DOG) {
+            dogUsersService.getUserByChatId(message.getChatId()).ifPresent(user -> {
+                user.setPhoneNumber(message.getText());
+                dogUsersService.save(user);
+            });
+        } else {
+            catUsersService.getUserByChatId(message.getChatId()).ifPresent(user -> {
+                user.setPhoneNumber(message.getText());
+                catUsersService.save(user);
+            });
+        }
     }
 
     /**
