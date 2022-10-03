@@ -201,8 +201,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             if (!(report.getDiet() == null && report.getStateOfHealth() == null
                   && report.getHabits() == null)) {
                 execute(SendMessage.builder().text("Ваш отчет принят.")
-                        .chatId(message.getChatId()).build());
-                processingStartMenu(message, pet.getTypeOfAnimal());
+                        .chatId(message.getChatId())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(getStartButton(type)).build())
+                        .build());
             }
         }
     }
@@ -329,6 +330,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                 catUsersService.save(user);
             });
         }
+        execute(SendMessage.builder()
+                .text("Введите пожалуйста адрес Вашей электронной почты")
+                .chatId(message.getChatId()).build());
     }
 
     /**
@@ -522,7 +526,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             } else {
                 takingCat(message, type, petId);
             }
-        } else  {
+        } else {
             execute(SendMessage.builder()
                     .text("У вас уже есть животное. Приходите через 30 дней")
                     .chatId(message.getChatId())
@@ -831,7 +835,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                 catUser.setRole(UserType.OWNER);
                 catUsersService.save(catUser);
                 petService.save(pet.get());
-                Info info = infoService.getInfo(1L);
+                Info info = infoService.getInfo(2L);
                 execute(SendMessage.builder().text(MessagesForUsers.MESSAGE_FOR_NEW_TUTOR +
                                                    "\n" + info.getWorkMode() + "по адресу: " +
                                                    info.getAddress() +
@@ -1062,7 +1066,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                         .callbackData("START:" + type)
                         .build()));
         execute(SendMessage.builder()
-                .text(message.getFrom().getUserName() + ", приветствуем вас в нашем приюте!")
+                .text("Приветствуем вас в нашем приюте!")
                 .chatId(message.getChatId().toString())
                 .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
                 .build());
@@ -1121,7 +1125,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
      * Отправка сообщений о необходимости предоставления отчета
      * @throws TelegramApiException - исключение TelegramApiException
      */
-    @Scheduled(cron = "0 18 13 * * *")
+    @Scheduled(cron = "0 37 15 * * *")
     public void sendNotification() throws TelegramApiException {
         List<Users> usersWithPet = usersService.getUsersWithPet();
         for (Users user : usersWithPet) {
