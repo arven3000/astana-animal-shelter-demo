@@ -17,7 +17,7 @@ public class InfoService {
 
     /**
      * Добавление справочной информации нового приюта.
-     * @param info
+     * @param info - информация о приюте
      */
     public void addInfo(Info info) {
         infoRepository.save(info);
@@ -25,7 +25,7 @@ public class InfoService {
 
     /**
      * Получение справочной информации приюта.
-     * @param id
+     * @param id - id приюта
      * @return Info
      */
     public Info getInfo(Long id) {
@@ -34,7 +34,7 @@ public class InfoService {
 
     /**
      * Удаление справочной информации приюта.
-     * @param id
+     * @param id - id приюта
      */
     public void deleteInfo(Long id) {
         infoRepository.deleteById(id);
@@ -42,9 +42,9 @@ public class InfoService {
 
     /**
      * Загрузка схемы проезда к приюту.
-     * @param infoId
-     * @param locationFile
-     * @throws IOException
+     * @param infoId - id приюта
+     * @param locationFile - файл локации
+     * @throws IOException - исключение IOException
      */
     public void uploadLocation(Long infoId, MultipartFile locationFile) throws IOException {
         Info info = infoRepository.findById(infoId).orElseThrow();

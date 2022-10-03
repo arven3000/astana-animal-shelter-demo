@@ -17,7 +17,7 @@ public class ReportService {
 
     /**
      * Поиск отчета по пользователю
-     * @param user
+     * @param user - пользователь
      * @return List<Report>
      */
     public List<Report> getReportsByUser(Users user) {
@@ -26,7 +26,7 @@ public class ReportService {
 
     /**
      * Сохранение отчета
-     * @param report
+     * @param report - отчет
      * @return Report
      */
     public Report save(Report report) {
@@ -35,7 +35,7 @@ public class ReportService {
 
     /**
      * Удаление отчета
-     * @param report
+     * @param report - отчет
      */
     public void delete(Report report) {
         reportRepository.delete(report);

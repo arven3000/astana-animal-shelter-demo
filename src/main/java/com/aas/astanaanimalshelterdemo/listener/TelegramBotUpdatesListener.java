@@ -105,7 +105,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Перехватчик сообщений
-     * @param message
+     * @param message - сообщение
      */
     private void handleMessage(Message message) throws TelegramApiException, IOException {
         AnimalType type = checkedType(message);
@@ -209,8 +209,8 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Назнаение информации о рационе питомца
-     * @param message
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void setPetDiet(Message message) throws TelegramApiException {
         Report report = new Report();
@@ -231,9 +231,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Проверка введенной даты посещения приюта
-     * @param message
-     * @param type
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void checkDate(Message message, AnimalType type) throws TelegramApiException {
         LocalDateTime dateTimeOfVisit = parseDateTime(message.getText());
@@ -252,9 +252,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Выбор меню в зависимости от выбора приюта
-     * @param message
-     * @param type
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void chooseMenu(Message message, AnimalType type) throws TelegramApiException {
         if (type != null) {
@@ -266,7 +266,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Проверка типа питомца
-     * @param message
+     * @param message - сообщение
      * @return AnimalType
      */
     private AnimalType checkedType(Message message) {
@@ -283,8 +283,8 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Проверка введенной электронной почты
-     * @param message
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void checkedUserForEmail(Message message) throws TelegramApiException {
         usersService.getUsersByChatId(message.getChatId()).ifPresent(user -> {
@@ -301,8 +301,8 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Сохранение номера телефона пользователя
-     * @param message
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void checkedUserForPhone(Message message) throws TelegramApiException {
         usersService.getUsersByChatId(message.getChatId()).ifPresent(user -> {
@@ -316,10 +316,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Сохранение даты посещения питомца
-     * @param message
-     * @param type
-     * @param dateTimeOfVisit
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type -тип животного
+     * @param dateTimeOfVisit -дата забора животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void checkedUserForDate(Message message, AnimalType type, LocalDateTime dateTimeOfVisit) throws TelegramApiException {
         if (type == AnimalType.DOG) {
@@ -387,9 +387,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Проверка наличия питомца при предоставлении отчета
-     * @param message
-     * @param type
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void reportLoad(Message message, AnimalType type) throws TelegramApiException {
         if (dogUsersService.getUserByChatId(message.getChatId()).isPresent()
@@ -420,9 +420,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Предложение для ввода номера телефона
-     * @param message
-     * @param type
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void contactLoad(Message message, AnimalType type) throws TelegramApiException {
         if (type != null) {
@@ -437,10 +437,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Меню рекомендаций животных с ограниченными возможностями
-     * @param message
-     * @param type
-     * @param infoId
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @param infoId - id приюта
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void adviceForHomeForPetWithDisabilityLoad(Message message, AnimalType type, Long infoId) throws TelegramApiException {
         Info info = infoService.getInfo(infoId);
@@ -454,10 +454,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Меню рекомендаций взрослых животных
-     * @param message
-     * @param type
-     * @param infoId
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @param infoId - id приюта
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void adviceForHomeForAdultPetLoad(Message message, AnimalType type, Long infoId) throws TelegramApiException {
         Info info = infoService.getInfo(infoId);
@@ -471,10 +471,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Меню рекомендаций для котят и щенков
-     * @param message
-     * @param type
-     * @param infoId
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @param infoId - id приюта
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void adviceForHomeForBabyLoad(Message message, AnimalType type, Long infoId) throws TelegramApiException {
         Info info = infoService.getInfo(infoId);
@@ -488,10 +488,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Выбор базы приюта в зависимости от выбора питомца
-     * @param message
-     * @param petId
-     * @param type
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param petId - id животного
+     * @param type - тип животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void chooseTaking(Message message, Long petId, AnimalType type) throws TelegramApiException {
         if (catUsersService.getUserByChatId(message.getChatId()).isEmpty()
@@ -517,10 +517,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Меню после сообщения об причинах отказа в выдаче питомца
-     * @param message
-     * @param type
-     * @param infoId
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @param infoId - id приюта
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void refusalLoad(Message message, AnimalType type, Long infoId) throws TelegramApiException {
         Info info = infoService.getInfo(infoId);
@@ -544,10 +544,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Меню после сообщения о рекомендациях об уходе за питомцем
-     * @param message
-     * @param type
-     * @param infoId
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @param infoId - id приюта
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void adviceLoad(Message message, AnimalType type, Long infoId) throws TelegramApiException {
         Info info = infoService.getInfo(infoId);
@@ -561,10 +561,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Меню после предоставления рекомендаций по транспортировке питомца
-     * @param message
-     * @param type
-     * @param infoId
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @param infoId - id приюта
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void transportationLoad(Message message, AnimalType type, Long infoId) throws TelegramApiException {
         Info info = infoService.getInfo(infoId);
@@ -578,10 +578,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Меню после предоставления списка документов
-     * @param message
-     * @param type
-     * @param infoId
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @param infoId - id приюта
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void documentsLoad(Message message, AnimalType type, Long infoId) throws TelegramApiException {
         Info info = infoService.getInfo(infoId);
@@ -595,10 +595,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Меню после предоставления информации о правилах
-     * @param message
-     * @param type
-     * @param infoId
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @param infoId - id приюта
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void rulesLoad(Message message, AnimalType type, Long infoId) throws TelegramApiException {
         Info info = infoService.getInfo(infoId);
@@ -612,10 +612,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Меню после предоставления информации о безопасности
-     * @param message
-     * @param type
-     * @param infoId
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @param infoId - id приюта
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void safetyLoad(Message message, AnimalType type, Long infoId) throws TelegramApiException {
         Info info = infoService.getInfo(infoId);
@@ -629,11 +629,11 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Информация о приюте
-     * @param message
-     * @param type
-     * @param infoId
-     * @throws TelegramApiException
-     * @throws IOException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @param infoId - id приюта
+     * @throws TelegramApiException - исключение TelegramApiException
+     * @throws IOException - исключение IOException
      */
     private void infoLoad(Message message, AnimalType type, Long infoId) throws TelegramApiException, IOException {
         Info info = infoService.getInfo(infoId);
@@ -658,9 +658,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Выбор приюта и сохранение пользователя
-     * @param message
-     * @param type
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void checkedExit(Message message, AnimalType type) throws TelegramApiException {
         if (type == AnimalType.DOG) {
@@ -685,9 +685,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Уточнение о желании сменить приют
-     * @param message
-     * @param type
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void checkedStart(Message message, AnimalType type) throws TelegramApiException {
         if (dogUsersService.getUserByChatId(message.getChatId()).isPresent()
@@ -716,7 +716,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Проверка даты
-     * @param dateTime
+     * @param dateTime - дата и время
      * @return LocalDateTime
      */
     @Nullable
@@ -731,7 +731,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Кнопка выбора приюта
-     * @param type
+     * @param type - тип животного
      * @return List<List<InlineKeyboardButton>>
      */
     private static List<List<InlineKeyboardButton>> getButtons(AnimalType type) {
@@ -746,7 +746,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Кнопка перехода к стартовому меню
-     * @param type
+     * @param type - тип животного
      * @return List<List<InlineKeyboardButton>>
      */
     private static List<List<InlineKeyboardButton>> getStartButton(AnimalType type) {
@@ -761,10 +761,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Выбор собаки
-     * @param message
-     * @param type
-     * @param petId
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @param petId - id животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void takingDog(Message message, AnimalType type, Long petId) throws TelegramApiException {
         DogUsers dogUsers = dogUsersService.getUserByChatId(message.getChatId())
@@ -796,10 +796,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Выбор кошки
-     * @param message
-     * @param type
-     * @param petId
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @param petId - id животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void takingCat(Message message, AnimalType type, Long petId) throws TelegramApiException {
         CatUsers catUser = catUsersService.getUserByChatId(message.getChatId())
@@ -831,8 +831,8 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Сообщение о некорректно введеных данных
-     * @param message
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void wrongMessage(Message message) throws TelegramApiException {
         execute(SendMessage.builder()
@@ -842,9 +842,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Сообщение о необходимости ввести контактные данные
-     * @param message
-     * @param type
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void messageForContact(Message message, AnimalType type) throws TelegramApiException {
         List<List<InlineKeyboardButton>> button = new ArrayList<>();
@@ -862,10 +862,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Предоставление списка свободных питомцев в зависимости от приюта
-     * @param message
-     * @param type
-     * @throws TelegramApiException
-     * @throws FileNotFoundException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @throws TelegramApiException - исключение TelegramApiException
+     * @throws FileNotFoundException  - исключение FileNotFoundException
      */
     private void choosingOfPet(Message message, AnimalType type) throws TelegramApiException,
             FileNotFoundException {
@@ -902,9 +902,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Меню рекомендации по обустройству
-     * @param message
-     * @param type
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void processingArrangementMenu(Message message, AnimalType type) throws TelegramApiException {
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
@@ -940,9 +940,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Меню правил и рекомендаций приюта
-     * @param message
-     * @param type
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void processingAdoptiveParentsMenu(Message message, AnimalType type) throws TelegramApiException {
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
@@ -986,9 +986,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Меню информации о приюте
-     * @param message
-     * @param type
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void processingInfoMenu(Message message, AnimalType type) throws TelegramApiException {
         Long infoId = type == AnimalType.DOG ? 1L : 2L;
@@ -1025,9 +1025,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Стартовое меню после выбора приюта
-     * @param message
-     * @param type
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @param type - тип животного
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     private void processingStartMenu(Message message, AnimalType type) throws TelegramApiException {
         checkedUser(message, type);
@@ -1053,8 +1053,8 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Проверка наличия пользователя в базе, сохранение нового
-     * @param message
-     * @param type
+     * @param message - сообщение
+     * @param type - тип животного
      */
     private void checkedUser(Message message, AnimalType type) {
         if (dogUsersService.getUserByChatId(message.getChatId()).isEmpty()
@@ -1077,8 +1077,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Меню выбора приюта
-     * @param message
-     * @throws TelegramApiException
+     * @param message - сообщение
+     * @throws TelegramApiException - исключение TelegramApiException
+
      */
     private void processingMenu(Message message) throws TelegramApiException {
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
@@ -1101,7 +1102,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
     /**
      * Отправка сообщений о необходимости предоставления отчета
-     * @throws TelegramApiException
+     * @throws TelegramApiException - исключение TelegramApiException
      */
     @Scheduled(cron = "0 18 13 * * *")
     public void sendNotification() throws TelegramApiException {

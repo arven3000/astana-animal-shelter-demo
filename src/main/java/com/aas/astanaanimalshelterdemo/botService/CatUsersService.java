@@ -16,7 +16,7 @@ public class CatUsersService {
 
     /**
      * Поиск владельца кошки по id чата
-     * @param chatId
+     * @param chatId - id чата
      * @return Optional<CatUsers>
      */
     public Optional<CatUsers> getUserByChatId(Long chatId) {
@@ -25,7 +25,7 @@ public class CatUsersService {
 
     /**
      * Сохранение владельца кошки
-     * @param user
+     * @param user - пользователь
      */
     public CatUsers save(CatUsers user) {
         return catUsersRepository.save(user);
@@ -33,7 +33,7 @@ public class CatUsersService {
 
     /**
      * Удаение владельца собаки
-     * @param user
+     * @param user - пользователь
      */
     public void delete(CatUsers user) {
         catUsersRepository.delete(user);
@@ -41,7 +41,7 @@ public class CatUsersService {
 
     /**
      * Поиск владельца кошки по id
-     * @param id
+     * @param id  - id пользователя
      * @return Optional<CatUsers>
      */
     public Optional<CatUsers> getUserById(Long id) {
