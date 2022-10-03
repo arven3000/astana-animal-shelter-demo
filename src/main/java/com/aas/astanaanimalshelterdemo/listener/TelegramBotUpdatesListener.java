@@ -284,10 +284,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
     /**
      * Проверка введенной электронной почты
      * @param message
-     * @param type
      * @throws TelegramApiException
      */
-    private void checkedUserForEmail(Message message/*, AnimalType type*/) throws TelegramApiException {
+    private void checkedUserForEmail(Message message) throws TelegramApiException {
         usersService.getUsersByChatId(message.getChatId()).ifPresent(user -> {
             user.setEmailAddress(message.getText());
             usersService.save(user);
@@ -303,10 +302,9 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
     /**
      * Сохранение номера телефона пользователя
      * @param message
-     * @param type
      * @throws TelegramApiException
      */
-    private void checkedUserForPhone(Message message/*, AnimalType type*/) throws TelegramApiException {
+    private void checkedUserForPhone(Message message) throws TelegramApiException {
         usersService.getUsersByChatId(message.getChatId()).ifPresent(user -> {
             user.setPhoneNumber(message.getText());
             usersService.save(user);
@@ -832,7 +830,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
     }
 
     /**
-     * Сообщение о некорректнно введеных данных
+     * Сообщение о некорректно введеных данных
      * @param message
      * @throws TelegramApiException
      */
