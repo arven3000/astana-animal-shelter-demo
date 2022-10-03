@@ -19,7 +19,7 @@ public class PetService {
 
     /**
      * Поиск питомца по типу
-     * @param typeOfAnimal
+     * @param typeOfAnimal - тип животного
      * @return List<Pet>
      */
     public List<Pet> getPetsByTypeOfAnimal(AnimalType typeOfAnimal) {
@@ -28,7 +28,7 @@ public class PetService {
 
     /**
      * Поиск питомца по типу и отсутствию владельца
-     * @param typeOfAnimal
+     * @param typeOfAnimal - тип животного
      * @return List<Pet>
      */
     public List<Pet> getPetsByTypeOfAnimalAndUsersNull(AnimalType typeOfAnimal) {
@@ -37,7 +37,7 @@ public class PetService {
 
     /**
      * Поиск питомца по id
-     * @param petId
+     * @param petId - id животного
      * @return Optional<Pet>
      */
     public Optional<Pet> getPetByPetId(Long petId) {
@@ -46,7 +46,7 @@ public class PetService {
 
     /**
      * Поиск питомца по владельцу
-     * @param user
+     * @param user - пользователь
      * @return Optional<Pet>
      */
     public Optional<Pet> getPetByUsers(Users user) {
@@ -55,7 +55,7 @@ public class PetService {
 
     /**
      * Изменениеб сохранение питомца
-     * @param pet
+     * @param pet - животное
      * @return Pet
      */
     public Pet save(Pet pet) {

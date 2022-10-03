@@ -27,7 +27,7 @@ public class UsersService {
 
     /**
      * Сохранение пользователя
-     * @param user
+     * @param user - пользователь
      * @return Users
      */
     public Users save(Users user) {
@@ -36,7 +36,7 @@ public class UsersService {
 
     /**
      * Удаление пользователя
-     * @param user
+     * @param user - пользователь
      */
     public void delete(Users user) {
         usersRepository.delete(user);
@@ -44,7 +44,7 @@ public class UsersService {
 
     /**
      * Поиск пользователей по id чата
-     * @param chatId
+     * @param chatId - id чата
      * @return Optional<Users>
      */
     public Optional<Users> getUsersByChatId(Long chatId) {

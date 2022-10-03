@@ -17,7 +17,7 @@ public class DogUsersService {
 
     /**
      * Поиск владельца собак по id чата
-     * @param chatId
+     * @param chatId - id чата
      * @return Optional<DogUsers>
      */
     public Optional<DogUsers> getUserByChatId(Long chatId) {
@@ -27,7 +27,7 @@ public class DogUsersService {
     /**
      * Сохранение владельца собаки
      *
-     * @param user
+     * @param user - пользователь
      */
     public void save(DogUsers user) {
         dogUsersRepository.save(user);
@@ -35,7 +35,7 @@ public class DogUsersService {
 
     /**
      * Удаление владельца собаки
-     * @param user
+     * @param user - пользователь
      */
     public void delete(DogUsers user) {
         dogUsersRepository.delete(user);
@@ -43,7 +43,7 @@ public class DogUsersService {
 
     /**
      * Поиск владельца собак по id
-     * @param id
+     * @param id - id пользователя
      * @return Optional<DogUsers>
      */
     public Optional<DogUsers> getUserById(Long id) {
