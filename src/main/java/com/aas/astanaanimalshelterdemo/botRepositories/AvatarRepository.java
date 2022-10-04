@@ -10,11 +10,5 @@ import java.util.Optional;
 
 @Repository
 public interface AvatarRepository extends JpaRepository<Avatar, Long> {
-
-    /**
-     * Поиск фото по питомцу
-     * @param pet - питомец
-     * @return - List<Avatar>
-     */
     List<Avatar> findAvatarByPet(Pet pet);
 }

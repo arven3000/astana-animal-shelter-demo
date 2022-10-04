@@ -92,7 +92,7 @@ public class AvatarService {
     /**
      * Создание уменьшенной фотографии для записи в таблицу Avatar.
      */
-    public byte[] creatingSmallerCopyOfPhoto(Path filePath) throws IOException {
+    private byte[] creatingSmallerCopyOfPhoto(Path filePath) throws IOException {
         try (InputStream is = Files.newInputStream(filePath);
              BufferedInputStream bis = new BufferedInputStream(is, 1024);
              ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -115,31 +115,5 @@ public class AvatarService {
     public List<Avatar> getAvatarsByPetId(Long petId) {
         Pet pet = petRepository.findById(petId).orElseThrow(NotFoundException::new);
         return avatarRepository.findAvatarByPet(pet);
-    }
-
-    /**
-     * Сохранение фотографии
-     * @param avatar - фото
-     * @return Avatar
-     */
-    public Avatar save(Avatar avatar) {
-        return avatarRepository.save(avatar);
-    }
-
-    /**
-     * Удаление фотографии
-     * @param avatar - фото
-     */
-    public void delete(Avatar avatar) {
-        avatarRepository.delete(avatar);
-    }
-
-    /**
-     * Поиск фото по id
-     * @param id - id фото
-     * @return Avatar
-     */
-    public Avatar getAvatarById(Long id) {
-        return avatarRepository.findById(id).orElseThrow(NotFoundException::new);
     }
 }

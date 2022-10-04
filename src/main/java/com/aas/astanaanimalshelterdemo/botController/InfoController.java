@@ -2,12 +2,6 @@ package com.aas.astanaanimalshelterdemo.botController;
 
 import com.aas.astanaanimalshelterdemo.botModel.Info;
 import com.aas.astanaanimalshelterdemo.botService.InfoService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,10 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-/**
- * Контроллер для работы со справочной информацией.
- */
-@Tag(name = "Info Controller", description = "CRUD операции с сущностью Info")
+//Контроллер для работы со справочной информацией.
 @RestController
 @RequestMapping("/happyPet/info")
 public class InfoController {
@@ -30,84 +21,33 @@ public class InfoController {
         this.infoService = infoService;
     }
 
-    /**
-     * Добавление справочной информации нового приюта.
-     *
-     * @param info - информация о приюте.
-     * @return - ResponseEntity<String>
-     */
-    @Operation(
-            summary = "Добавление информации о приюте.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "метод добавляет информацию о новом приюте"
-                    )
-            }
-    )
+    //Добавление справочной информации нового приюта.
     @PostMapping
-    public ResponseEntity<String> addInfo(@Parameter(description = "вносим всю необходимую информацию о приюте")
-                                          @RequestBody Info info) {
+    public ResponseEntity<String> addInfo(@RequestBody Info info) {
         infoService.addInfo(info);
         return ResponseEntity.ok().build();
     }
 
-    /**
-     * Загрузка схемы проезда по id приюта.
-     *
-     * @param infoId   - id приюта
-     * @param location - файл изображения локации
-     * @return - ResponseEntity<String>
-     * @throws IOException - исключение IOException
-     */
-    @Operation(
-            summary = "Загрузка изображения локации приюта.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "метод загружает изображение с локацией",
-                            content = @Content(
-                                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
-                                    schema = @Schema(implementation = Info.class)
-                            )
-                    )
-            }
-    )
+    //Загрузка схемы проезда по id приюта.
     @PostMapping(value = "/location/{infoId}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadLocation(@Parameter(description = "указываем id приюта")
-                                                 @PathVariable Long infoId,
-                                                 @Parameter(description = "передаем изображение локации")
-                                                 @RequestParam MultipartFile location)
-            throws IOException {
+    public ResponseEntity<String> uploadLocation (@PathVariable Long infoId,
+                                                  @RequestParam MultipartFile location)
+        throws IOException {
 
+        //Максимальный размер файла в мегабайтах для загрузки схемы проезда.
         int maxSizeOfFileLocation = 1;
         if (location.getSize() >= maxSizeOfFileLocation * 1024 * 1024) {
             return ResponseEntity.badRequest().body("Слишком большой файл. " +
-                                                    "Максимальный размер файла " + maxSizeOfFileLocation + " MB.");
+                    "Максимальный размер файла " + maxSizeOfFileLocation + " MB.");
         }
         infoService.uploadLocation(infoId, location);
         return ResponseEntity.ok().build();
     }
 
-    /**
-     * Получение справочной информации приюта.
-     *
-     * @param id - id приюта
-     * @return - ResponseEntity<Info>
-     */
-    @Operation(
-            summary = "Поиск информации о приюте.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "метод возвращает информацию о приюте по id"
-                    )
-            }
-    )
+    //Получение справочной информации приюта.
     @GetMapping("/{id}")
-    public ResponseEntity<Info> getInfo(@Parameter(description = "указываем id приюта")
-                                        @PathVariable Long id) {
+    public ResponseEntity<Info> getInfo(@PathVariable Long id) {
         Info info = infoService.getInfo(id);
         if (info == null) {
             return ResponseEntity.notFound().build();
@@ -115,24 +55,9 @@ public class InfoController {
         return ResponseEntity.ok(info);
     }
 
-    /**
-     * Получение схемы проезда к приюту.
-     *
-     * @param infoId - id приюта
-     * @return - ResponseEntity<byte[]>
-     */
-    @Operation(
-            summary = "Поиск изображения локации приюта.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "метод возвращает изображение локации приюта по id"
-                    )
-            }
-    )
+    //Получение схемы проезда к приюту.
     @GetMapping("/getLocation/{infoId}")
-    public ResponseEntity<byte[]> getLocation(@Parameter(description = "указываем id приюта")
-                                              @PathVariable Long infoId) {
+    public ResponseEntity<byte[]> getLocation(@PathVariable Long infoId) {
         Info info = infoService.getInfo(infoId);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.parseMediaType(info.getMediaType()));
@@ -141,24 +66,9 @@ public class InfoController {
                 body(info.getLocation());
     }
 
-    /**
-     * Удаление справочной информации приюта.
-     *
-     * @param id - id приюта
-     * @return - ResponseEntity<String>
-     */
-    @Operation(
-            summary = "Удаляем информацию о приюте.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "метод удаляет информацию о приюте по id"
-                    )
-            }
-    )
+    //Удаление справочной информации приюта.
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteInfo(@Parameter(description = "указываем id приюта")
-                                             @PathVariable Long id) {
+    public ResponseEntity<String> deleteInfo(@PathVariable Long id) {
         infoService.deleteInfo(id);
         return ResponseEntity.ok().build();
     }

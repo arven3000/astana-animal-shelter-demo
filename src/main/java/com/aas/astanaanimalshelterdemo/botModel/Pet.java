@@ -99,6 +99,7 @@ public class Pet {
                 ", name='" + name + '\'' +
                 ", typeOfAnimal=" + typeOfAnimal +
                 ", age=" + age +
+                ", users=" + users +
                 '}';
     }
 }

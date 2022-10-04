@@ -11,7 +11,3 @@ databaseChangeLog:
       file: liquibase/scripts/tableOfAvatars.sql
   - include:
       file: liquibase/scripts/tableOfReports.sql
-  - include:
-      file: liquibase/scripts/tableOfDogUser.sql
-  - include:
-      file: liquibase/scripts/tableOfCatUser.sql
