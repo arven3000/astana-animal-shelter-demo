@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@OpenAPIDefinition
 @EnableScheduling
+@OpenAPIDefinition
 public class AstanaAnimalShelterDemoApplication {
 
 	public static void main(String[] args) {

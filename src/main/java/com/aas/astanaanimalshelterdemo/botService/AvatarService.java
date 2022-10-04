@@ -62,6 +62,7 @@ public class AvatarService {
             avatar.setFileSize(avatarFile.getSize());
             avatar.setPhoto(creatingSmallerCopyOfPhoto(filePath));
         }
+
         avatarRepository.save(avatar);
     }
 
@@ -114,6 +115,14 @@ public class AvatarService {
     public List<Avatar> getAvatarsByPetId(Long petId) {
         Pet pet = petRepository.findById(petId).orElseThrow(NotFoundException::new);
         return avatarRepository.findAvatarByPet(pet);
+    }
+
+    public Avatar save(Avatar avatar) {
+        return avatarRepository.save(avatar);
+    }
+
+    public void delete(Avatar avatar) {
+        avatarRepository.delete(avatar);
     }
 
     public Avatar getAvatarById(Long id) {

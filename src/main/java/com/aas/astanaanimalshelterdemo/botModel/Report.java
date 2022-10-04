@@ -128,7 +128,7 @@ public class Report {
         Report report = (Report) o;
         return Objects.equals(id,
                 report.id) && Objects.equals(user, report.user)
-                && Objects.equals(petId,
+               && Objects.equals(petId,
                 report.petId) && Objects.equals(diet,
                 report.diet) && Objects.equals(stateOfHealth,
                 report.stateOfHealth) && Objects.equals(habits,
@@ -144,13 +144,13 @@ public class Report {
     @Override
     public String toString() {
         return "Report{" +
-                "id=" + id +
-                ", user=" + user +
-                ", petId=" + petId +
-                ", diet='" + diet + '\'' +
-                ", stateOfHealth='" + stateOfHealth + '\'' +
-                ", habits='" + habits + '\'' +
-                ", dataTime=" + dataTime +
-                '}';
+               "id=" + id +
+               ", user=" + user +
+               ", petId=" + petId +
+               ", diet='" + diet + '\'' +
+               ", stateOfHealth='" + stateOfHealth + '\'' +
+               ", habits='" + habits + '\'' +
+               ", dataTime=" + dataTime +
+               '}';
     }
 }
