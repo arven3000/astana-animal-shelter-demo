@@ -8,57 +8,91 @@ import java.util.Objects;
 @Entity
 public class Info {
 
-    //Идентификатор приюта.
+    /**
+     * Идентификатор приюта.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //Информация о приюте.
+    /**
+     * Информация о приюте.
+     */
     private String aboutShelter;
 
-    //Режим работы приюта.
+    /**
+     * Режим работы приюта.
+     */
     private String workMode;
 
-    //Адрес приюта.
+    /**
+     * Адрес приюта.
+     */
     private String address;
 
-    //Телефон и адрес электронной почты приюта.
+    /**
+     * Телефон и адрес электронной почты приюта.
+     */
     private String contacts;
 
-    //Правила поведения в приюте.
+    /**
+     * Правила поведения в приюте.
+     */
     private String safetyPrecautions;
 
-    //Правила знакомства с питомцами.
+    /**
+     * Правила знакомства с питомцами.
+     */
     private String datingRules;
 
-    //Советы кинолога.
+    /**
+     * Советы кинолога.
+     */
     private String tipsOfDogHandler;
 
-    //Список кинологов.
+    /**
+     * Список кинологов.
+     */
     private String listOfDogHandler;
 
-    //Причины для отказа.
+    /**
+     * Причины для отказа.
+     */
     private String reasonsForRefusal;
 
-    //Список необходимых документов.
+    /**
+     * Список необходимых документов.
+     */
     private String listOfDocuments;
 
-    //Рекомендации по транспортировке питомца.
+    /**
+     * Рекомендации по транспортировке питомца.
+     */
     private String adviceForTransporting;
 
-    //Рекомендации по обустройству дома для щенка.
+    /**
+     * Рекомендации по обустройству дома для щенка.
+     */
     private String adviceForHomeForBaby;
 
-    //Рекомендации по обустройству дома для взрослой собаки.
+    /**
+     * Рекомендации по обустройству дома для взрослой собаки.
+     */
     private String adviceForHomeForAdultPet;
 
-    //Рекомендации по обустройству дома для собаки с ограниченными возможностями.
+    /**
+     * Рекомендации по обустройству дома для собаки с ограниченными возможностями.
+     */
     private String adviceForHomeForPetWithDisability;
 
-    //Тип файла со схемой проезда.
+    /**
+     * Тип файла со схемой проезда.
+     */
     private String mediaType;
 
-    //Схема проезда в битах.
+    /**
+     * Схема проезда в битах.
+     */
     @Lob
     private byte[] location;
 

@@ -22,6 +22,11 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
          */
         Optional<Pet> findPetByUsers(Users user);
 
+        /**
+         * Поиск питомца по типу и отсутсвию владельца
+         * @param typeOfAnimal - тип питомца
+         * @return - List<Pet>
+         */
         @Query("select p from Pet p where p.typeOfAnimal=:typeOfAnimal and p.users is null ")
         List<Pet> findPetsByTypeAndNullUser(AnimalType typeOfAnimal);
 }
