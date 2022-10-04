@@ -389,7 +389,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             case "NO", "INFORMATION" -> processingInfoMenu(message, type);
             case "TAKE" -> processingAdoptiveParentsMenu(message, type);
             case "REPORT" -> reportLoad(message, type);
-            case "CALL" -> CallVolunteer(message);
+            case "CALL" -> callVolunteer(message);
             case "WORKING" -> infoLoad(message, type, infoId);
             case "CONTACT" -> contactLoad(message, type);
             case "SAFETY" -> safetyLoad(message, type, infoId);
@@ -413,7 +413,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
      * @param message - сообщение
      * @throws TelegramApiException - исключение TelegramApiException
      */
-    private void CallVolunteer(Message message) throws TelegramApiException {
+    private void callVolunteer(Message message) throws TelegramApiException {
         execute(SendMessage.builder()
                 .text("Для перенаправления в чат с волонтёрами, нажмите кнопку ниже")
                 .chatId(message.getChatId().toString())
