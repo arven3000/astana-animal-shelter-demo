@@ -368,6 +368,12 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
         }
     }
 
+    /**
+     * Обработка обратного вызова
+     * @param callbackQuery - обратный вызов
+     * @throws TelegramApiException - исключение TelegramApiException
+     * @throws IOException - исключение IOException
+     */
     private void handleCallBack(CallbackQuery callbackQuery) throws TelegramApiException,
             IOException {
         Message message = callbackQuery.getMessage();
@@ -384,9 +390,8 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             case "TAKE" -> processingAdoptiveParentsMenu(message, type);
             case "REPORT" -> reportLoad(message, type);
             case "CALL" -> execute(SendMessage.builder()
-                    .text("Вызов волонтера")
+                    .text("Ожидайте. Идёт вызов волонтера...")
                     .chatId(message.getChatId().toString())
-//                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
                     .build());
             case "WORKING" -> infoLoad(message, type, infoId);
             case "CONTACT" -> contactLoad(message, type);

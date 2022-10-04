@@ -117,14 +117,28 @@ public class AvatarService {
         return avatarRepository.findAvatarByPet(pet);
     }
 
+    /**
+     * Сохранение фотографии
+     * @param avatar - фото
+     * @return Avatar
+     */
     public Avatar save(Avatar avatar) {
         return avatarRepository.save(avatar);
     }
 
+    /**
+     * Удаление фотографии
+     * @param avatar - фото
+     */
     public void delete(Avatar avatar) {
         avatarRepository.delete(avatar);
     }
 
+    /**
+     * Поиск фото по id
+     * @param id - id фото
+     * @return Avatar
+     */
     public Avatar getAvatarById(Long id) {
         return avatarRepository.findById(id).orElseThrow(NotFoundException::new);
     }
