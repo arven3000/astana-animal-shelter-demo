@@ -26,10 +26,6 @@ public class CatUsers extends Users{
     @OneToOne
     private Pet pet;
 
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "user")
-//    private Collection<Report> reports;
-
     public CatUsers() {
 
     }
