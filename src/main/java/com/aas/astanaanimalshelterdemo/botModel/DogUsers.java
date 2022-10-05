@@ -18,10 +18,6 @@ public class DogUsers extends Users {
     @OneToOne
     private Pet pet;
 
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "user")
-//    private Collection<Report> reports;
-
     public DogUsers() {
 
     }

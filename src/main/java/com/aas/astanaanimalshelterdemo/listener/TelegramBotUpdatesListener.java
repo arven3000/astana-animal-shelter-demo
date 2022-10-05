@@ -16,6 +16,8 @@ import com.aas.astanaanimalshelterdemo.botService.ReportService;
 import com.aas.astanaanimalshelterdemo.botService.UsersService;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -53,6 +55,8 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
     private String token;
     @Value("${telegram.bot.username}")
     private String username;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
     private final InfoService infoService;
     private final PetService petService;
     private final AvatarService avatarService;
@@ -89,15 +93,19 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasCallbackQuery()) {
+            LOGGER.info("Caught button click.");
             try {
                 handleCallBack(update.getCallbackQuery());
             } catch (TelegramApiException | IOException e) {
+                LOGGER.error("Error occurred: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         } else if (update.hasMessage()) {
+            LOGGER.info("Caught the message.");
             try {
                 handleMessage(update.getMessage());
             } catch (TelegramApiException | IOException e) {
+                LOGGER.error("Error occurred: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }
@@ -111,10 +119,13 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
         AnimalType type = checkedType(message);
         if (message.hasText()) {
             if ("/start".equals(message.getText())) {
+                LOGGER.info("Received command /start.");
                 chooseMenu(message, type);
             } else if (message.getText().startsWith("Рацион питания")) {
+                LOGGER.info("The user introduced the pet's diet.");
                 setPetDiet(message);
             } else if (message.getText().startsWith("Общее самочувствие")) {
+                LOGGER.info("The user described the state of health of the pet.");
                 Users user = usersService.getUsersByChatId(message.getChatId())
                         .orElseThrow(NotFoundException::new);
                 List<Report> reports = reportService.getReportsByUser(user);
@@ -131,6 +142,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                               "Начните со слов Поведение питомца.")
                         .chatId(message.getChatId()).build());
             } else if (message.getText().startsWith("Поведение питомца")) {
+                LOGGER.info("The user described the behavior of the pet.");
                 Users user = usersService.getUsersByChatId(message.getChatId())
                         .orElseThrow(NotFoundException::new);
                 List<Report> reports = reportService.getReportsByUser(user);
@@ -146,16 +158,21 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                         .text("Загрузите пожалуйста актуальную фотографию питомца.")
                         .chatId(message.getChatId()).build());
             } else if (message.getText().matches("([0-9.:\\s]{16})")) {
+                LOGGER.info("The user has set the date and time of the visit to the shelter.");
                 checkDate(message, type);
             } else if (message.getText().matches(
                     "^((\\+7\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{2}[- .]?\\d{2}$")) {
+                LOGGER.info("The user entered the phone number.");
                 checkedUserForPhone(message, type);
             } else if (message.getText().matches("^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$")) {
+                LOGGER.info("The user entered the e-mail.");
                 checkedUserForEmail(message, type);
             } else {
+                LOGGER.info("The user entered the data in the wrong format.");
                 wrongMessage(message);
             }
         } else if (message.hasPhoto()) {
+            LOGGER.info("The user sent the photo of pet for the report.");
             Users user = usersService.getUsersByChatId(message.getChatId())
                     .orElseThrow(NotFoundException::new);
             Pet pet = petService.getPetByUsers(user)
@@ -200,6 +217,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
 
             if (!(report.getDiet() == null && report.getStateOfHealth() == null
                   && report.getHabits() == null)) {
+                LOGGER.info("The user passed the report.");
                 execute(SendMessage.builder().text("Ваш отчет принят.")
                         .chatId(message.getChatId())
                         .replyMarkup(InlineKeyboardMarkup.builder().keyboard(getStartButton(type)).build())
@@ -383,28 +401,99 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
         AnimalType type = param.length >= 2 ? AnimalType.valueOf(param[1]) : null;
         Long infoId = type == AnimalType.DOG ? 1L : 2L;
         switch (action) {
-            case "DOG", "CAT" -> processingStartMenu(message, type);
-            case "START" -> checkedStart(message, type);
-            case "YES" -> checkedExit(message, type);
-            case "NO", "INFORMATION" -> processingInfoMenu(message, type);
-            case "TAKE" -> processingAdoptiveParentsMenu(message, type);
-            case "REPORT" -> reportLoad(message, type);
-            case "CALL" -> callVolunteer(message);
-            case "WORKING" -> infoLoad(message, type, infoId);
-            case "CONTACT" -> contactLoad(message, type);
-            case "SAFETY" -> safetyLoad(message, type, infoId);
-            case "ARRANGEMENT" -> processingArrangementMenu(message, type);
-            case "CHOOSING" -> choosingOfPet(message, type);
-            case "RULES" -> rulesLoad(message, type, infoId);
-            case "DOCUMENTS" -> documentsLoad(message, type, infoId);
-            case "TRANSPORTATION" -> transportationLoad(message, type, infoId);
-            case "ADVICE" -> adviceLoad(message, type, infoId);
-            case "CYNOLOGIST" -> cynologistLoad(message, type, infoId);
-            case "REFUSAL" -> refusalLoad(message, type, infoId);
-            case "PUPPIES", "KITTENS" -> adviceForHomeForBabyLoad(message, type, infoId);
-            case "DOG_ADULT", "CAT_ADULT" -> adviceForHomeForAdultPetLoad(message, type, infoId);
-            case "DOG_LIMITED", "CAT_LIMITED" -> adviceForHomeForPetWithDisabilityLoad(message, type, infoId);
-            case "TAKING" -> chooseTaking(message, petId, type);
+            case "DOG", "CAT" -> {
+                LOGGER.info("The user has chosen a shelter.");
+                processingStartMenu(message, type);
+            }
+            case "START" -> {
+                LOGGER.info("The user wanted to change shelter.");
+                checkedStart(message, type);
+            }
+            case "YES" -> {
+                LOGGER.info("The user confirmed that he wants to change the shelter.");
+                checkedExit(message, type);
+            }
+            case "NO", "INFORMATION" -> {
+                LOGGER.info("The user wanted the information about shelter.");
+                processingInfoMenu(message, type);
+            }
+            case "TAKE" -> {
+                LOGGER.info("The user wanted to know how to take a pet from a shelter.");
+                processingAdoptiveParentsMenu(message, type);
+            }
+            case "REPORT" -> {
+                LOGGER.info("The user wanted to pass a report.");
+                reportLoad(message, type);
+            }
+            case "CALL" -> {
+                LOGGER.info("The user wanted to contact the volunteer.");
+                callVolunteer(message);
+            }
+            case "WORKING" -> {
+                LOGGER.info("The user wanted to know the operating mode of the shelter.");
+                infoLoad(message, type, infoId);
+            }
+            case "CONTACT" -> {
+                LOGGER.info("The user wanted to know the contacts of the shelter.");
+                contactLoad(message, type);
+            }
+            case "SAFETY" -> {
+                LOGGER.info("The user wanted to know the recommendations about safety " +
+                        "on the territory of the shelter.");
+                safetyLoad(message, type, infoId);
+            }
+            case "ARRANGEMENT" -> {
+                LOGGER.info("The user wanted to know how to prepare the house for " +
+                        "the appearance of a pet.");
+                processingArrangementMenu(message, type);
+            }
+            case "CHOOSING" -> {
+                LOGGER.info("The user wanted to choose a pet.");
+                choosingOfPet(message, type);
+            }
+            case "RULES" -> {
+                LOGGER.info("The user wanted to know the rules of dating with pet.");
+                rulesLoad(message, type, infoId);
+            }
+            case "DOCUMENTS" -> {
+                LOGGER.info("The user wanted to know the list of documents for take a pet.");
+                documentsLoad(message, type, infoId);
+            }
+            case "TRANSPORTATION" -> {
+                LOGGER.info("The user wanted to know the rules of transportation of pet.");
+                transportationLoad(message, type, infoId);
+            }
+            case "ADVICE" -> {
+                LOGGER.info("The user wanted to know the advices of dog handlers.");
+                adviceLoad(message, type, infoId);
+            }
+            case "CYNOLOGIST" -> {
+                LOGGER.info("The user wanted to know the list of dog handlers.");
+                cynologistLoad(message, type, infoId);
+            }
+            case "REFUSAL" -> {
+                LOGGER.info("The user wanted to know the reasons for the refusal to take a pet.");
+                refusalLoad(message, type, infoId);
+            }
+            case "PUPPIES", "KITTENS" -> {
+                LOGGER.info("The user wanted to know how to prepare the house for" +
+                        "the appearance of a puppy or a kitten.");
+                adviceForHomeForBabyLoad(message, type, infoId);
+            }
+            case "DOG_ADULT", "CAT_ADULT" -> {
+                LOGGER.info("The user wanted to know how to prepare the house for" +
+                        "the appearance of a adult dog or a adult cat.");
+                adviceForHomeForAdultPetLoad(message, type, infoId);
+            }
+            case "DOG_LIMITED", "CAT_LIMITED" -> {
+                LOGGER.info("The user wanted to know how to prepare the house for" +
+                        "the appearance of a dog or a cat with disabilities.");
+                adviceForHomeForPetWithDisabilityLoad(message, type, infoId);
+            }
+            case "TAKING" -> {
+                LOGGER.info("The user selected the pet.");
+                chooseTaking(message, petId, type);
+            }
         }
     }
 
