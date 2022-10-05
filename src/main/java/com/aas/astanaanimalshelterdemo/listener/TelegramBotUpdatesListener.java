@@ -186,8 +186,10 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
             URL url = new URL("https://api.telegram.org/bot"
                               + getBotToken() + "/getFile?file_id=" + fileId);
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-            String getFileResponse = br.readLine();
+            String getFileResponse;
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()))) {
+                getFileResponse = br.readLine();
+            }
             JSONObject jresult = new JSONObject(getFileResponse);
             JSONObject path = jresult.getJSONObject("result");
             String filePath = path.getString("file_path");
@@ -662,6 +664,13 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                 .build());
     }
 
+    /**
+     * Загрузка информации о кинологах
+     * @param message - сообщение
+     * @param type - тип животного
+     * @param infoId - id приюта
+     * @throws TelegramApiException - исключение TelegramApiException
+     */
     private void cynologistLoad(Message message, AnimalType type, Long infoId) throws TelegramApiException {
         Info info = infoService.getInfo(infoId);
         List<List<InlineKeyboardButton>> buttons = getButtons(type);
@@ -834,7 +843,7 @@ public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
                             .callbackData("NO:" + type)
                             .build()));
             execute(SendMessage.builder()
-                    .text("При переходе к выбору приюта все ваши данные будут удалены!")
+                    .text("Если вы не забронировали питомца, при выходе все ваши данные будут удалены!")
                     .chatId(message.getChatId().toString())
                     .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttons).build())
                     .build());
