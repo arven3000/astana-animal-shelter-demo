@@ -5,6 +5,7 @@ import com.aas.astanaanimalshelterdemo.botModel.Pet;
 import com.aas.astanaanimalshelterdemo.botModel.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,5 +29,5 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
          * @return - List<Pet>
          */
         @Query("select p from Pet p where p.typeOfAnimal=:typeOfAnimal and p.users is null ")
-        List<Pet> findPetsByTypeAndNullUser(AnimalType typeOfAnimal);
+        List<Pet> findPetsByTypeAndNullUser(@Param("typeOfAnimal") AnimalType typeOfAnimal);
 }
