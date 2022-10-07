@@ -1,6 +1,15 @@
 package com.aas.astanaanimalshelterdemo.listener;
 
-import com.aas.astanaanimalshelterdemo.botModel.*;
+import com.aas.astanaanimalshelterdemo.botModel.AnimalType;
+import com.aas.astanaanimalshelterdemo.botModel.Avatar;
+import com.aas.astanaanimalshelterdemo.botModel.CatUsers;
+import com.aas.astanaanimalshelterdemo.botModel.DogUsers;
+import com.aas.astanaanimalshelterdemo.botModel.Info;
+import com.aas.astanaanimalshelterdemo.botModel.MessagesForUsers;
+import com.aas.astanaanimalshelterdemo.botModel.Pet;
+import com.aas.astanaanimalshelterdemo.botModel.Report;
+import com.aas.astanaanimalshelterdemo.botModel.UserType;
+import com.aas.astanaanimalshelterdemo.botModel.Users;
 import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.AdoptiveParentsMenuEnum;
 import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.ArrangementCatMenuEnum;
 import com.aas.astanaanimalshelterdemo.botModel.buttonsMenu.ArrangementDogMenuEnum;
@@ -20,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
@@ -27,11 +37,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.springframework.mock.web.MockMultipartFile;
 
 import javax.ws.rs.NotFoundException;
 import java.io.BufferedReader;
@@ -46,7 +59,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Component
 public class TelegramBotUpdatesListener extends TelegramLongPollingBot {
