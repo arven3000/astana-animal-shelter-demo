@@ -5,6 +5,8 @@ import com.aas.astanaanimalshelterdemo.botModel.Pet;
 import com.aas.astanaanimalshelterdemo.botRepositories.AvatarRepository;
 import com.aas.astanaanimalshelterdemo.botRepositories.PetRepository;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,8 @@ public class AvatarService {
     @Value("${path.to.avatars.folder}")
     private String avatarDir;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AvatarService.class);
+
     private final PetRepository petRepository;
     private final AvatarRepository avatarRepository;
 
@@ -47,6 +51,8 @@ public class AvatarService {
      */
     public void upLoadAvatar(Long petId, MultipartFile avatarFile)
             throws IOException {
+        LOGGER.info("Was invoked method for uploading avatar of pet.");
+
         Pet pet = petRepository.findById(petId).orElseThrow();
         Avatar avatar = new Avatar();
         avatar.setPet(pet);
@@ -92,7 +98,7 @@ public class AvatarService {
     /**
      * Создание уменьшенной фотографии для записи в таблицу Avatar.
      */
-    private byte[] creatingSmallerCopyOfPhoto(Path filePath) throws IOException {
+    public byte[] creatingSmallerCopyOfPhoto(Path filePath) throws IOException {
         try (InputStream is = Files.newInputStream(filePath);
              BufferedInputStream bis = new BufferedInputStream(is, 1024);
              ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -113,7 +119,37 @@ public class AvatarService {
      * Получение Автаров по идентификатору питомца.
      */
     public List<Avatar> getAvatarsByPetId(Long petId) {
+        LOGGER.info("Was invoked method for getting avatar of pet by petId.");
         Pet pet = petRepository.findById(petId).orElseThrow(NotFoundException::new);
         return avatarRepository.findAvatarByPet(pet);
+    }
+
+    /**
+     * Сохранение фотографии
+     * @param avatar - фото
+     * @return Avatar
+     */
+    public Avatar save(Avatar avatar) {
+        LOGGER.info("Was invoked method for save avatar of pet.");
+        return avatarRepository.save(avatar);
+    }
+
+    /**
+     * Удаление фотографии
+     * @param avatar - фото
+     */
+    public void delete(Avatar avatar) {
+        LOGGER.info("Was invoked method for delete avatar of pet.");
+        avatarRepository.delete(avatar);
+    }
+
+    /**
+     * Поиск фото по id
+     * @param id - id фото
+     * @return Avatar
+     */
+    public Avatar getAvatarById(Long id) {
+        LOGGER.info("Was invoked method for get avatar of pet by id.");
+        return avatarRepository.findById(id).orElseThrow(NotFoundException::new);
     }
 }
